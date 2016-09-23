@@ -13,6 +13,7 @@
 		588AFAC91D94C389000BDFCF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 588AFAC71D94C389000BDFCF /* LaunchScreen.storyboard */; };
 		588AFAD11D94C4B9000BDFCF /* QRCodeScanViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588AFAD01D94C4B9000BDFCF /* QRCodeScanViewController.swift */; };
 		588AFADC1D952297000BDFCF /* QRCodePickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588AFADA1D952297000BDFCF /* QRCodePickerViewController.swift */; };
+		588AFAE11D953354000BDFCF /* QRCodeGenerateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588AFAE01D953354000BDFCF /* QRCodeGenerateViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		588AFADA1D952297000BDFCF /* QRCodePickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRCodePickerViewController.swift; sourceTree = "<group>"; };
 		588AFADE1D952C74000BDFCF /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		588AFADF1D952C74000BDFCF /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
+		588AFAE01D953354000BDFCF /* QRCodeGenerateViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRCodeGenerateViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +63,7 @@
 				588AFABC1D94C389000BDFCF /* AppDelegate.swift */,
 				588AFAD01D94C4B9000BDFCF /* QRCodeScanViewController.swift */,
 				588AFADA1D952297000BDFCF /* QRCodePickerViewController.swift */,
+				588AFAE01D953354000BDFCF /* QRCodeGenerateViewController.swift */,
 				588AFAC21D94C389000BDFCF /* Main.storyboard */,
 				588AFAC51D94C389000BDFCF /* Assets.xcassets */,
 				588AFAC71D94C389000BDFCF /* LaunchScreen.storyboard */,
@@ -143,6 +146,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				588AFABD1D94C389000BDFCF /* AppDelegate.swift in Sources */,
+				588AFAE11D953354000BDFCF /* QRCodeGenerateViewController.swift in Sources */,
 				588AFAD11D94C4B9000BDFCF /* QRCodeScanViewController.swift in Sources */,
 				588AFADC1D952297000BDFCF /* QRCodePickerViewController.swift in Sources */,
 			);

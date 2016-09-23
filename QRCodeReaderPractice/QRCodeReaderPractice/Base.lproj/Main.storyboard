@@ -20,6 +20,7 @@
                     <connections>
                         <segue destination="1oL-rK-FGf" kind="relationship" relationship="viewControllers" id="xtL-UP-Skw"/>
                         <segue destination="cAP-zP-iIk" kind="relationship" relationship="viewControllers" id="gv1-5n-DVa"/>
+                        <segue destination="Ofg-M4-NbG" kind="relationship" relationship="viewControllers" id="HCw-8Y-0B7"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HuB-VB-40B" sceneMemberID="firstResponder"/>
@@ -101,6 +102,52 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Kh7-37-UWF" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="808.79999999999995" y="72.413793103448285"/>
+        </scene>
+        <!--generate-->
+        <scene sceneID="D0e-r5-Xta">
+            <objects>
+                <viewController id="Ofg-M4-NbG" customClass="QRCodeGenerateViewController" customModule="QRCodeReaderPractice" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="a1z-4h-QlZ"/>
+                        <viewControllerLayoutGuide type="bottom" id="JBl-Lq-tjZ"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="F8r-WS-Orf">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tp8-8c-eCK">
+                                <frame key="frameInset" minX="115" minY="115" width="145" height="76"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="25"/>
+                                <state key="normal" title="生成二维码"/>
+                                <connections>
+                                    <action selector="generateImage" destination="Ofg-M4-NbG" eventType="touchUpInside" id="6hO-Wm-cIq"/>
+                                </connections>
+                            </button>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" text="https://www.baidu.com/" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="Dst-3l-msh">
+                                <frame key="frameInset" minX="16" minY="28" width="343" height="80"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.90701128939999998" green="0.90701128939999998" blue="0.90701128939999998" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oRS-IJ-n8l">
+                                <frame key="frameInset" minX="37" minY="228" width="300" height="300"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="generate" image="first" id="znS-TT-D9v"/>
+                    <connections>
+                        <outlet property="generateButton" destination="tp8-8c-eCK" id="MwB-nu-cDc"/>
+                        <outlet property="imageView" destination="oRS-IJ-n8l" id="sfh-fm-N5H"/>
+                        <outlet property="textView" destination="Dst-3l-msh" id="tNF-mX-hB9"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="VIZ-uh-nrt" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="808.79999999999995" y="743.47826086956525"/>
         </scene>
     </scenes>
     <resources>
