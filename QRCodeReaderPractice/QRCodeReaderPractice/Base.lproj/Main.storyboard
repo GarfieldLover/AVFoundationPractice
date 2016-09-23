@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11201" systemVersion="16A323" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="49e-Tb-3d3">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11161"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Tab Bar Controller-->
+        <scene sceneID="yl2-sM-qoP">
+            <objects>
+                <tabBarController id="49e-Tb-3d3" sceneMemberID="viewController">
+                    <nil key="simulatedBottomBarMetrics"/>
+                    <tabBar key="tabBar" contentMode="scaleToFill" id="W28-zg-YXA">
+                        <rect key="frame" x="0.0" y="975" width="768" height="49"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                    </tabBar>
+                    <connections>
+                        <segue destination="1oL-rK-FGf" kind="relationship" relationship="viewControllers" id="xtL-UP-Skw"/>
+                    </connections>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="HuB-VB-40B" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="0.0" y="0.0"/>
+        </scene>
+        <!--scan-->
+        <scene sceneID="KXg-Ds-2Nf">
+            <objects>
+                <viewController id="1oL-rK-FGf" customClass="QRCodeScanViewController" customModule="QRCodeReaderPractice" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="oZ6-2g-aTP"/>
+                        <viewControllerLayoutGuide type="bottom" id="Gqs-5h-6xg"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="m0d-Ru-PlB">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="P0z-vw-LjY"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="scan_light" translatesAutoresizingMaskIntoConstraints="NO" id="fhZ-JB-YSI"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="scanbox_bg" translatesAutoresizingMaskIntoConstraints="NO" id="uEw-Lc-n5D">
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="uEw-Lc-n5D" secondAttribute="height" multiplier="1:1" id="sf9-QX-r9d"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="uEw-Lc-n5D" firstAttribute="centerX" secondItem="m0d-Ru-PlB" secondAttribute="centerX" id="BgT-Wp-OGU"/>
+                            <constraint firstItem="P0z-vw-LjY" firstAttribute="leading" secondItem="m0d-Ru-PlB" secondAttribute="leading" id="CS5-za-JGe"/>
+                            <constraint firstItem="fhZ-JB-YSI" firstAttribute="leading" secondItem="uEw-Lc-n5D" secondAttribute="leading" id="D21-K0-EpV"/>
+                            <constraint firstItem="uEw-Lc-n5D" firstAttribute="centerY" secondItem="m0d-Ru-PlB" secondAttribute="centerY" constant="-24.5" id="HWQ-a7-5Qf"/>
+                            <constraint firstItem="uEw-Lc-n5D" firstAttribute="top" secondItem="fhZ-JB-YSI" secondAttribute="bottom" constant="-46" id="YiU-VU-aH9"/>
+                            <constraint firstItem="P0z-vw-LjY" firstAttribute="top" secondItem="m0d-Ru-PlB" secondAttribute="top" id="ZI0-Mx-Aty"/>
+                            <constraint firstItem="P0z-vw-LjY" firstAttribute="centerX" secondItem="fhZ-JB-YSI" secondAttribute="centerX" id="ZaB-nd-nsY"/>
+                            <constraint firstItem="P0z-vw-LjY" firstAttribute="bottom" secondItem="Gqs-5h-6xg" secondAttribute="top" id="ryg-jQ-xhN"/>
+                        </constraints>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="scan" image="first" id="shu-nK-9e2"/>
+                    <connections>
+                        <outlet property="scanBackView" destination="P0z-vw-LjY" id="ZpL-nl-rSC"/>
+                        <outlet property="scanRectView" destination="uEw-Lc-n5D" id="aAj-Nc-hxg"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="aVc-a0-ZN3" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="808.79999999999995" y="-580.65967016491754"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="first" width="30" height="30"/>
+        <image name="scan_light" width="230" height="7"/>
+        <image name="scanbox_bg" width="230" height="230"/>
+    </resources>
+</document>
