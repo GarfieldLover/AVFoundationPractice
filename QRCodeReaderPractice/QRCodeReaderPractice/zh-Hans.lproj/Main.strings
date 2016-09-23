@@ -1,0 +1,9 @@
+
+/* Class = "UITabBarItem"; title = "picker"; ObjectID = "8QV-2B-2hL"; */
+"8QV-2B-2hL.title" = "picker";
+
+/* Class = "UIButton"; normalTitle = "选择二维码"; ObjectID = "W71-3p-XBI"; */
+"W71-3p-XBI.normalTitle" = "选择二维码";
+
+/* Class = "UITabBarItem"; title = "scan"; ObjectID = "shu-nK-9e2"; */
+"shu-nK-9e2.title" = "scan";

@@ -9,12 +9,6 @@
 import UIKit
 import AVFoundation
 
-//class imagecc: AnyClass {
-//    func <#name#>(<#parameters#>) -> <#return type#> {
-//        <#function body#>
-//    }
-//}
-
 class QRCodeScanViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     
     @IBOutlet weak var scanRectView: UIImageView?
@@ -28,6 +22,7 @@ class QRCodeScanViewController: UIViewController, AVCaptureMetadataOutputObjects
 
         let device = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
         
+        //
         let input: AVCaptureDeviceInput?
         do{
             input = try AVCaptureDeviceInput.init(device: device)

@@ -19,6 +19,7 @@
                     </tabBar>
                     <connections>
                         <segue destination="1oL-rK-FGf" kind="relationship" relationship="viewControllers" id="xtL-UP-Skw"/>
+                        <segue destination="cAP-zP-iIk" kind="relationship" relationship="viewControllers" id="gv1-5n-DVa"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HuB-VB-40B" sceneMemberID="firstResponder"/>
@@ -67,6 +68,39 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="aVc-a0-ZN3" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="808.79999999999995" y="-580.65967016491754"/>
+        </scene>
+        <!--picker-->
+        <scene sceneID="KE7-We-pbZ">
+            <objects>
+                <viewController id="cAP-zP-iIk" customClass="QRCodePickerViewController" customModule="QRCodeReaderPractice" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="3EC-m4-7jH"/>
+                        <viewControllerLayoutGuide type="bottom" id="pnw-tw-RCi"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="3Zs-nP-4g0">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="W71-3p-XBI">
+                                <frame key="frameInset" minX="115" minY="295" width="145" height="76"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="25"/>
+                                <state key="normal" title="选择二维码"/>
+                                <connections>
+                                    <action selector="pickerImage" destination="cAP-zP-iIk" eventType="touchUpInside" id="pni-Nn-5gd"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="picker" image="first" id="8QV-2B-2hL"/>
+                    <connections>
+                        <outlet property="pickerButton" destination="W71-3p-XBI" id="Efs-Ag-qU4"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Kh7-37-UWF" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="808.79999999999995" y="72.413793103448285"/>
         </scene>
     </scenes>
     <resources>
