@@ -22,23 +22,23 @@ class QRCodeScanViewController: UIViewController, AVCaptureMetadataOutputObjects
 
         let device = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
         
-        //
+        //输入
         let input: AVCaptureDeviceInput?
         do{
             input = try AVCaptureDeviceInput.init(device: device)
         }catch{
             input = nil
         }
-        
+        //元数据输出
         output = AVCaptureMetadataOutput.init()
         output?.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
-        
+        //捕获会话
         let session = AVCaptureSession.init()
         session.sessionPreset = AVCaptureSessionPresetHigh
         session.addInput(input)
         session.addOutput(output)
         output?.metadataObjectTypes = [AVMetadataObjectTypeQRCode]
-
+        //预览
         let previewLayer = AVCaptureVideoPreviewLayer.init(session: session)
         previewLayer?.frame = self.view.bounds
         self.view.layer.insertSublayer(previewLayer!, at: 0)
@@ -52,11 +52,11 @@ class QRCodeScanViewController: UIViewController, AVCaptureMetadataOutputObjects
         let rectOfInterestHeight = (scanRectView?.bounds.size.width)!/self.view.bounds.size.width
         let rectOfInterestX = (scanRectView?.frame.origin.y)!/self.view.bounds.size.height
         let rectOfInterestY = (scanRectView?.frame.origin.x)!/self.view.bounds.size.width
-
+        //扫码范围
         output?.rectOfInterest = CGRect.init(x: rectOfInterestX, y: rectOfInterestY, width: rectOfInterestWidth, height: rectOfInterestHeight);
 
+        //扫码遮罩
         let rect = CGRect.init(x: self.view.frame.origin.x, y: self.view.frame.origin.y, width: self.view.frame.size.width, height: self.view.frame.size.height-49)
-        
         UIGraphicsBeginImageContext(rect.size)
         let context: CGContext? = UIGraphicsGetCurrentContext()
         context?.setFillColor(UIColor.black.withAlphaComponent(0.6).cgColor);
@@ -87,6 +87,7 @@ class QRCodeScanViewController: UIViewController, AVCaptureMetadataOutputObjects
     
     func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [Any]!, from connection: AVCaptureConnection!) {
         if(metadataObjects.count>0){
+            //扫码识别结果
             let object: AVMetadataMachineReadableCodeObject = metadataObjects.first as! AVMetadataMachineReadableCodeObject
             let alert: UIAlertController = UIAlertController.init(title: object.stringValue, message: nil, preferredStyle: .alert)
             let alertAction: UIAlertAction = UIAlertAction.init(title: "好", style: .cancel, handler: { (alert) in
