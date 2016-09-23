@@ -19,6 +19,7 @@ class QRCodeScanViewController: UIViewController, AVCaptureMetadataOutputObjects
     
     @IBOutlet weak var scanRectView: UIImageView?
     @IBOutlet weak var scanBackView: UIImageView?
+    @IBOutlet weak var scanLineView: UIImageView?
 
     var output: AVCaptureMetadataOutput?
 
@@ -70,13 +71,33 @@ class QRCodeScanViewController: UIViewController, AVCaptureMetadataOutputObjects
         UIGraphicsEndImageContext()
         
         scanBackView?.image = image
+        
+        startAnimation()
     }
+    
+    func startAnimation() -> Void {
+        UIView.beginAnimations("scanLineView", context: nil)
+        UIView.setAnimationDuration(1.5)
+        UIView.setAnimationCurve(.linear)
+        UIView.setAnimationRepeatCount(MAXFLOAT)
+        scanLineView?.frame = CGRect.init(x: (scanLineView?.frame.origin.x)!, y: (scanLineView?.frame.origin.y)!+(scanRectView?.frame.size.height)!-8, width: (scanLineView?.frame.size.width)!, height: (scanLineView?.frame.size.height)!)
+        UIView.commitAnimations()
+    }
+    
+    func stopAnimation() -> Void {
+        self.view.layer.removeAllAnimations()
+        scanLineView?.frame = CGRect.init(x: (scanLineView?.frame.origin.x)!, y: (scanRectView?.frame.origin.y)!, width: (scanLineView?.frame.size.width)!, height: (scanLineView?.frame.size.height)!)
+    }
+
     
     func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [Any]!, from connection: AVCaptureConnection!) {
         if(metadataObjects.count>0){
             let object: AVMetadataMachineReadableCodeObject = metadataObjects.first as! AVMetadataMachineReadableCodeObject
-//             object.stringValue
-            
+            let alert: UIAlertController = UIAlertController.init(title: object.stringValue, message: nil, preferredStyle: .alert)
+            let alertAction: UIAlertAction = UIAlertAction.init(title: "好", style: .cancel, handler: { (alert) in
+            })
+            alert.addAction(alertAction)
+            self.present(alert, animated: true, completion: nil)
         }
     }
 
