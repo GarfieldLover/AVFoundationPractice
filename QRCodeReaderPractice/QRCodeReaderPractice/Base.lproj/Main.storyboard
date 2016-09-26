@@ -46,6 +46,14 @@
                                     <constraint firstAttribute="width" secondItem="uEw-Lc-n5D" secondAttribute="height" multiplier="1:1" id="sf9-QX-r9d"/>
                                 </constraints>
                             </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NrQ-2K-49C">
+                                <frame key="frameInset" minX="242" minY="520" width="46" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="放大"/>
+                                <connections>
+                                    <action selector="generateImage" destination="1oL-rK-FGf" eventType="touchUpInside" id="7dW-r3-NVa"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         <constraints>

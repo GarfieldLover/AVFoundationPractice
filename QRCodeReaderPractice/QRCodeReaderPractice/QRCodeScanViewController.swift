@@ -16,6 +16,8 @@ class QRCodeScanViewController: UIViewController, AVCaptureMetadataOutputObjects
     @IBOutlet weak var scanLineView: UIImageView?
 
     var output: AVCaptureMetadataOutput?
+    var session: AVCaptureSession?
+    var stillImageOutput: AVCaptureStillImageOutput?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,20 +34,70 @@ class QRCodeScanViewController: UIViewController, AVCaptureMetadataOutputObjects
         //元数据输出
         output = AVCaptureMetadataOutput.init()
         output?.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
+        
+        stillImageOutput = AVCaptureStillImageOutput.init()
+        
+        
         //捕获会话
-        let session = AVCaptureSession.init()
-        session.sessionPreset = AVCaptureSessionPresetHigh
-        session.addInput(input)
-        session.addOutput(output)
+        session = AVCaptureSession.init()
+        session?.sessionPreset = AVCaptureSessionPresetHigh
+        session?.addInput(input)
+        session?.addOutput(output)
+        session?.addOutput(stillImageOutput)
+
+        
         //扫条形码不太好用，很多扫不出
         output?.metadataObjectTypes = [AVMetadataObjectTypeQRCode, AVMetadataObjectTypeCode39Code, AVMetadataObjectTypeCode39Mod43Code, AVMetadataObjectTypeEAN13Code, AVMetadataObjectTypeEAN8Code, AVMetadataObjectTypeCode93Code, AVMetadataObjectTypePDF417Code, AVMetadataObjectTypeAztecCode]
+        
         //预览
         let previewLayer = AVCaptureVideoPreviewLayer.init(session: session)
         previewLayer?.frame = self.view.bounds
         self.view.layer.insertSublayer(previewLayer!, at: 0)
-        
-        session.startRunning()
 
+        session?.startRunning()
+        
+    }
+    
+    @IBAction func generateImage() -> Void {
+        
+        let stillImageOutput: AVCaptureStillImageOutput = session?.outputs.first as! AVCaptureStillImageOutput
+        let connection: AVCaptureConnection = stillImageOutput.connection(withMediaType: AVMediaTypeVideo)
+        let maxScale = connection.videoScaleAndCropFactor
+        let zoom = maxScale/50
+        connection.videoScaleAndCropFactor += maxScale
+        
+        self.view.transform = CGAffineTransform.init(scaleX: zoom, y: zoom)
+        
+    }
+    
+    
+    - (AVCaptureConnection *)connectionWithMediaType:(NSString *)mediaType fromConnections:(NSArray *)connections
+    {
+    for ( AVCaptureConnection *connection in connections ) {
+    for ( AVCaptureInputPort *port in [connection inputPorts] ) {
+    if ( [[port mediaType] isEqual:mediaType] ) {
+    return connection;
+    }
+    }
+    }
+    return nil;
+    }
+
+    - (void)setVideoScale:(CGFloat)scale
+    {
+    [_input.device lockForConfiguration:nil];
+    
+    AVCaptureConnection *videoConnection = [self connectionWithMediaType:AVMediaTypeVideo fromConnections:[[self stillImageOutput] connections]];
+    
+    CGFloat zoom = scale / videoConnection.videoScaleAndCropFactor;
+    
+    videoConnection.videoScaleAndCropFactor = scale;
+    
+    [_input.device unlockForConfiguration];
+    
+    CGAffineTransform transform = _videoPreView.transform;
+    
+    _videoPreView.transform = CGAffineTransformScale(transform, zoom, zoom);
     }
     
     override func viewDidLayoutSubviews() {
