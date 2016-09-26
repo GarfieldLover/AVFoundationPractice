@@ -29,22 +29,46 @@ class QRCodeGenerateViewController: UIViewController {
         filter.setValue(data, forKey: "inputMessage")
         filter.setValue("H", forKey: "inputCorrectionLevel")
 
-        let ciImage: CIImage? = filter.outputImage
+        let onColor: CIColor = CIColor.init(cgColor: UIColor.brown.cgColor)
+        let offColor: CIColor = CIColor.init(cgColor: UIColor.lightGray.cgColor)
+        
+        let colorFilter: CIFilter = CIFilter.init(name: "CIFalseColor")!
+        colorFilter.setValue(filter.outputImage, forKey: "inputImage")
+        colorFilter.setValue(onColor, forKey: "inputColor0")
+        colorFilter.setValue(offColor, forKey: "inputColor1")
+
+        let ciImage: CIImage? = colorFilter.outputImage
         guard (ciImage != nil) else {
             return
         }
-        DemoQRcode
-        //zk 不够清晰
+
         let size: CGSize = CGSize.init(width: 300, height: 300)
         let cgImage = CIContext.init().createCGImage(ciImage!, from: ciImage!.extent)
         UIGraphicsBeginImageContext(size)
         let context: CGContext? = UIGraphicsGetCurrentContext()
+        context!.interpolationQuality = .none;
         context?.scaleBy(x: 1.0, y: -1.0)
         context?.draw(cgImage!, in: context!.boundingBoxOfClipPath)
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
         imageView?.image = image
+        
+//        // 通常,二维码都是定制的,中间都会放想要表达意思的图片
+//        if let iconImage = UIImage(named: qrImageName!) {
+//            let rect = CGRectMake(0, 0, codeImage.size.width, codeImage.size.height)
+//            UIGraphicsBeginImageContext(rect.size)
+//            
+//            codeImage.drawInRect(rect)
+//            let avatarSize = CGSizeMake(rect.size.width * 0.25, rect.size.height * 0.25)
+//            let x = (rect.width - avatarSize.width) * 0.5
+//            let y = (rect.height - avatarSize.height) * 0.5
+//            iconImage.drawInRect(CGRectMake(x, y, avatarSize.width, avatarSize.height))
+//            let resultImage = UIGraphicsGetImageFromCurrentImageContext()
+//            
+//            UIGraphicsEndImageContext()
+//            return resultImage
+//        }
 
         
     }
