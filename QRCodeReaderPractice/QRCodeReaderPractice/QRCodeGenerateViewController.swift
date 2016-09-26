@@ -24,7 +24,7 @@ class QRCodeGenerateViewController: UIViewController {
         
         let text = self.textView?.text
         let data: Data? = text?.data(using: .utf8)
-        
+
         let filter: CIFilter = CIFilter.init(name: "CIQRCodeGenerator")!
         filter.setValue(data, forKey: "inputMessage")
         filter.setValue("H", forKey: "inputCorrectionLevel")
@@ -70,6 +70,35 @@ class QRCodeGenerateViewController: UIViewController {
 //            return resultImage
 //        }
 
+        
+    }
+    
+    @IBAction func generateBarCodeImage() -> Void {
+        
+        let text = self.textView?.text
+        let data: Data? = text?.data(using: .utf8)
+        
+        let filter: CIFilter = CIFilter.init(name: "CICode128BarcodeGenerator")!
+        filter.setValue(data, forKey: "inputMessage")
+        
+        let onColor: CIColor = CIColor.init(cgColor: UIColor.brown.cgColor)
+        let offColor: CIColor = CIColor.init(cgColor: UIColor.lightGray.cgColor)
+        
+        let colorFilter: CIFilter = CIFilter.init(name: "CIFalseColor")!
+        colorFilter.setValue(filter.outputImage, forKey: "inputImage")
+        colorFilter.setValue(onColor, forKey: "inputColor0")
+        colorFilter.setValue(offColor, forKey: "inputColor1")
+        
+        let ciImage: CIImage? = colorFilter.outputImage
+        guard (ciImage != nil) else {
+            return
+        }
+        
+        let height = ciImage!.extent.height
+        let width = ciImage!.extent.width
+
+        imageView?.frame = CGRect.init(x: (self.view.bounds.size.width-width)/2, y: 300, width: width, height: height)
+        imageView?.image = UIImage.init(ciImage: ciImage!)
         
     }
     

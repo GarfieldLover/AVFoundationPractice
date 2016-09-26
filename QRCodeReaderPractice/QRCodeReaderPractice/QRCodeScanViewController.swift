@@ -37,7 +37,8 @@ class QRCodeScanViewController: UIViewController, AVCaptureMetadataOutputObjects
         session.sessionPreset = AVCaptureSessionPresetHigh
         session.addInput(input)
         session.addOutput(output)
-        output?.metadataObjectTypes = [AVMetadataObjectTypeQRCode]
+        //扫条形码不太好用，很多扫不出
+        output?.metadataObjectTypes = [AVMetadataObjectTypeQRCode, AVMetadataObjectTypeCode39Code, AVMetadataObjectTypeCode39Mod43Code, AVMetadataObjectTypeEAN13Code, AVMetadataObjectTypeEAN8Code, AVMetadataObjectTypeCode93Code, AVMetadataObjectTypePDF417Code, AVMetadataObjectTypeAztecCode]
         //预览
         let previewLayer = AVCaptureVideoPreviewLayer.init(session: session)
         previewLayer?.frame = self.view.bounds
