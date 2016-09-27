@@ -29,8 +29,8 @@ class QRCodeGenerateViewController: UIViewController {
         filter.setValue(data, forKey: "inputMessage")
         filter.setValue("H", forKey: "inputCorrectionLevel")
 
-        let onColor: CIColor = CIColor.init(cgColor: UIColor.brown.cgColor)
-        let offColor: CIColor = CIColor.init(cgColor: UIColor.lightGray.cgColor)
+        let onColor: CIColor = CIColor.init(cgColor: UIColor.clear.cgColor)
+        let offColor: CIColor = CIColor.init(cgColor: UIColor.blue.cgColor)
         
         let colorFilter: CIFilter = CIFilter.init(name: "CIFalseColor")!
         colorFilter.setValue(filter.outputImage, forKey: "inputImage")
@@ -41,36 +41,23 @@ class QRCodeGenerateViewController: UIViewController {
         guard (ciImage != nil) else {
             return
         }
-
+        let avatar: UIImage = UIImage.init(named: "Snip20160927_1")!
         let size: CGSize = CGSize.init(width: 300, height: 300)
         let cgImage = CIContext.init().createCGImage(ciImage!, from: ciImage!.extent)
         UIGraphicsBeginImageContext(size)
         let context: CGContext? = UIGraphicsGetCurrentContext()
         context!.interpolationQuality = .none;
         context?.scaleBy(x: 1.0, y: -1.0)
-        context?.draw(cgImage!, in: context!.boundingBoxOfClipPath)
+        context?.draw(avatar.cgImage!, in: context!.boundingBoxOfClipPath)
+        context?.draw(cgImage!, in: CGRect.init(x: 30, y: 30-300, width: 240, height: 240))
+        context?.draw(avatar.cgImage!, in: CGRect.init(x: 130, y: 130-300, width: 40, height: 40))
+        //得分开画头像，得到圆角头像再画在中间
+        //let xx: UIBezierPath = UIBezierPath.init(roundedRect: CGRect.init(x: 130, y: 130-300, width: 40, height: 40), cornerRadius: 10)
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
         imageView?.image = image
-        
-//        // 通常,二维码都是定制的,中间都会放想要表达意思的图片
-//        if let iconImage = UIImage(named: qrImageName!) {
-//            let rect = CGRectMake(0, 0, codeImage.size.width, codeImage.size.height)
-//            UIGraphicsBeginImageContext(rect.size)
-//            
-//            codeImage.drawInRect(rect)
-//            let avatarSize = CGSizeMake(rect.size.width * 0.25, rect.size.height * 0.25)
-//            let x = (rect.width - avatarSize.width) * 0.5
-//            let y = (rect.height - avatarSize.height) * 0.5
-//            iconImage.drawInRect(CGRectMake(x, y, avatarSize.width, avatarSize.height))
-//            let resultImage = UIGraphicsGetImageFromCurrentImageContext()
-//            
-//            UIGraphicsEndImageContext()
-//            return resultImage
-//        }
 
-        
     }
     
     @IBAction func generateBarCodeImage() -> Void {
@@ -102,20 +89,6 @@ class QRCodeGenerateViewController: UIViewController {
         
     }
     
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
