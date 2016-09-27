@@ -3,7 +3,6 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11161"/>
-        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -39,32 +38,27 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="80Q-j8-xXG">
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                            </view>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="P0z-vw-LjY"/>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="scan_light" translatesAutoresizingMaskIntoConstraints="NO" id="fhZ-JB-YSI"/>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="scanbox_bg" translatesAutoresizingMaskIntoConstraints="NO" id="uEw-Lc-n5D">
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="uEw-Lc-n5D" secondAttribute="height" multiplier="1:1" id="sf9-QX-r9d"/>
-                                </constraints>
-                            </imageView>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NrQ-2K-49C">
-                                <frame key="frameInset" minX="242" minY="520" width="46" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="放大"/>
-                                <connections>
-                                    <action selector="generateImage" destination="1oL-rK-FGf" eventType="touchUpInside" id="7dW-r3-NVa"/>
-                                </connections>
-                            </button>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="scanbox_bg" translatesAutoresizingMaskIntoConstraints="NO" id="uEw-Lc-n5D"/>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="uEw-Lc-n5D" firstAttribute="centerX" secondItem="m0d-Ru-PlB" secondAttribute="centerX" id="BgT-Wp-OGU"/>
-                            <constraint firstItem="P0z-vw-LjY" firstAttribute="leading" secondItem="m0d-Ru-PlB" secondAttribute="leading" id="CS5-za-JGe"/>
-                            <constraint firstItem="fhZ-JB-YSI" firstAttribute="leading" secondItem="uEw-Lc-n5D" secondAttribute="leading" id="D21-K0-EpV"/>
-                            <constraint firstItem="uEw-Lc-n5D" firstAttribute="centerY" secondItem="m0d-Ru-PlB" secondAttribute="centerY" constant="-24.5" id="HWQ-a7-5Qf"/>
-                            <constraint firstItem="fhZ-JB-YSI" firstAttribute="top" secondItem="oZ6-2g-aTP" secondAttribute="bottom" constant="175" id="Kzz-OV-daR"/>
-                            <constraint firstItem="P0z-vw-LjY" firstAttribute="top" secondItem="m0d-Ru-PlB" secondAttribute="top" id="ZI0-Mx-Aty"/>
-                            <constraint firstItem="P0z-vw-LjY" firstAttribute="centerX" secondItem="fhZ-JB-YSI" secondAttribute="centerX" id="ZaB-nd-nsY"/>
-                            <constraint firstItem="P0z-vw-LjY" firstAttribute="bottom" secondItem="Gqs-5h-6xg" secondAttribute="top" id="ryg-jQ-xhN"/>
+                            <constraint firstItem="80Q-j8-xXG" firstAttribute="top" secondItem="m0d-Ru-PlB" secondAttribute="top" id="Awv-xt-KS8"/>
+                            <constraint firstItem="P0z-vw-LjY" firstAttribute="bottom" secondItem="Gqs-5h-6xg" secondAttribute="top" id="MN9-rg-UXY"/>
+                            <constraint firstItem="fhZ-JB-YSI" firstAttribute="top" secondItem="oZ6-2g-aTP" secondAttribute="bottom" constant="175" id="P6S-I4-bjj"/>
+                            <constraint firstItem="80Q-j8-xXG" firstAttribute="top" secondItem="P0z-vw-LjY" secondAttribute="top" id="YFN-Ug-4mj"/>
+                            <constraint firstAttribute="trailing" secondItem="80Q-j8-xXG" secondAttribute="trailing" id="Zbb-zH-ia5"/>
+                            <constraint firstItem="80Q-j8-xXG" firstAttribute="leading" secondItem="m0d-Ru-PlB" secondAttribute="leading" id="dkQ-aN-oEU"/>
+                            <constraint firstItem="uEw-Lc-n5D" firstAttribute="leading" secondItem="fhZ-JB-YSI" secondAttribute="leading" id="hOW-og-dX3"/>
+                            <constraint firstItem="P0z-vw-LjY" firstAttribute="centerX" secondItem="uEw-Lc-n5D" secondAttribute="centerX" id="o84-t9-46F"/>
+                            <constraint firstItem="P0z-vw-LjY" firstAttribute="leading" secondItem="80Q-j8-xXG" secondAttribute="leading" id="oiE-96-Gho"/>
+                            <constraint firstItem="P0z-vw-LjY" firstAttribute="centerY" secondItem="uEw-Lc-n5D" secondAttribute="centerY" id="pAp-1S-XY8"/>
+                            <constraint firstItem="80Q-j8-xXG" firstAttribute="bottom" secondItem="Gqs-5h-6xg" secondAttribute="top" id="vWq-vI-176"/>
+                            <constraint firstItem="80Q-j8-xXG" firstAttribute="trailing" secondItem="P0z-vw-LjY" secondAttribute="trailing" id="zvu-iO-P9F"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="scan" image="first" id="shu-nK-9e2"/>
@@ -72,6 +66,7 @@
                         <outlet property="scanBackView" destination="P0z-vw-LjY" id="ZpL-nl-rSC"/>
                         <outlet property="scanLineView" destination="fhZ-JB-YSI" id="Tj6-ar-gNb"/>
                         <outlet property="scanRectView" destination="uEw-Lc-n5D" id="aAj-Nc-hxg"/>
+                        <outlet property="scanZoomView" destination="80Q-j8-xXG" id="Qwb-QR-0hA"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="aVc-a0-ZN3" userLabel="First Responder" sceneMemberID="firstResponder"/>

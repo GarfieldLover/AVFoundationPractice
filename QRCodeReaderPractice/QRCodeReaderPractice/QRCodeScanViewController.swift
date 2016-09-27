@@ -14,6 +14,7 @@ class QRCodeScanViewController: UIViewController, AVCaptureMetadataOutputObjects
     @IBOutlet weak var scanRectView: UIImageView?
     @IBOutlet weak var scanBackView: UIImageView?
     @IBOutlet weak var scanLineView: UIImageView?
+    @IBOutlet weak var scanZoomView: UIView?
 
     var output: AVCaptureMetadataOutput?
     var session: AVCaptureSession?
@@ -36,7 +37,7 @@ class QRCodeScanViewController: UIViewController, AVCaptureMetadataOutputObjects
         output?.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
         
         stillImageOutput = AVCaptureStillImageOutput.init()
-        
+
         
         //捕获会话
         session = AVCaptureSession.init()
@@ -51,54 +52,41 @@ class QRCodeScanViewController: UIViewController, AVCaptureMetadataOutputObjects
         
         //预览
         let previewLayer = AVCaptureVideoPreviewLayer.init(session: session)
-        previewLayer?.frame = self.view.bounds
-        self.view.layer.insertSublayer(previewLayer!, at: 0)
+        previewLayer?.frame = (self.view?.bounds)!
+        scanZoomView?.layer.insertSublayer(previewLayer!, at: 0)
 
         session?.startRunning()
         
-    }
-    
-    @IBAction func generateImage() -> Void {
-        
-        let stillImageOutput: AVCaptureStillImageOutput = session?.outputs.first as! AVCaptureStillImageOutput
-        let connection: AVCaptureConnection = stillImageOutput.connection(withMediaType: AVMediaTypeVideo)
-        let maxScale = connection.videoScaleAndCropFactor
-        let zoom = maxScale/50
-        connection.videoScaleAndCropFactor += maxScale
-        
-        self.view.transform = CGAffineTransform.init(scaleX: zoom, y: zoom)
-        
-    }
-    
-    
-    - (AVCaptureConnection *)connectionWithMediaType:(NSString *)mediaType fromConnections:(NSArray *)connections
-    {
-    for ( AVCaptureConnection *connection in connections ) {
-    for ( AVCaptureInputPort *port in [connection inputPorts] ) {
-    if ( [[port mediaType] isEqual:mediaType] ) {
-    return connection;
-    }
-    }
-    }
-    return nil;
+
     }
 
-    - (void)setVideoScale:(CGFloat)scale
-    {
-    [_input.device lockForConfiguration:nil];
-    
-    AVCaptureConnection *videoConnection = [self connectionWithMediaType:AVMediaTypeVideo fromConnections:[[self stillImageOutput] connections]];
-    
-    CGFloat zoom = scale / videoConnection.videoScaleAndCropFactor;
-    
-    videoConnection.videoScaleAndCropFactor = scale;
-    
-    [_input.device unlockForConfiguration];
-    
-    CGAffineTransform transform = _videoPreView.transform;
-    
-    _videoPreView.transform = CGAffineTransformScale(transform, zoom, zoom);
+    //设置比例
+    func setVideoScale(scale: CGFloat) -> Void {
+        let connection: AVCaptureConnection! = stillImageOutput?.connections.first as! AVCaptureConnection
+//        self.connectionWith(mediaType: AVMediaTypeVideo, connections: (stillImageOutput?.connections)!)
+        guard (connection != nil) else {
+            return
+        }
+        let zoom = scale / connection!.videoScaleAndCropFactor
+        connection!.videoScaleAndCropFactor = scale
+        
+        scanZoomView?.transform = CGAffineTransform.init(scaleX: zoom, y: zoom)
     }
+    
+    //找出AVCaptureStillImageOutput的AVCaptureConnection
+    func connectionWith(mediaType: String, connections: [Any]) -> AVCaptureConnection? {
+        for connection in connections {
+            let connectionItem = connection as! AVCaptureConnection
+            for port in connectionItem.inputPorts {
+                let portItem = port as! AVCaptureInputPort
+                if portItem.mediaType == mediaType {
+                    return connection as? AVCaptureConnection
+                }
+            }
+        }
+        return nil
+    }
+ 
     
     override func viewDidLayoutSubviews() {
         let rectOfInterestWidth = (scanRectView?.bounds.size.height)!/self.view.bounds.size.height
@@ -121,6 +109,13 @@ class QRCodeScanViewController: UIViewController, AVCaptureMetadataOutputObjects
         scanBackView?.image = image
         
         startAnimation()
+        
+        //TODO xxxxx
+        let zoomView = LBXScanVideoZoomView.init(frame: CGRect.init(x: (self.view.frame.size.width-200)/2, y: (scanRectView?.frame.origin.y)!+(scanRectView?.frame.size.height)!+100, width: 200, height: 18))
+        zoomView.block = {(value: Float) in
+            self.setVideoScale(scale: CGFloat.init(value) )
+        }
+        self.view.addSubview(zoomView)
     }
     
     func startAnimation() -> Void {
@@ -149,21 +144,5 @@ class QRCodeScanViewController: UIViewController, AVCaptureMetadataOutputObjects
             self.present(alert, animated: true, completion: nil)
         }
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }
