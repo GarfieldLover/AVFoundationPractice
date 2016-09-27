@@ -30,7 +30,7 @@ class QRCodeGenerateViewController: UIViewController {
         filter.setValue("H", forKey: "inputCorrectionLevel")
 
         let onColor: CIColor = CIColor.init(cgColor: UIColor.clear.cgColor)
-        let offColor: CIColor = CIColor.init(cgColor: UIColor.blue.cgColor)
+        let offColor: CIColor = CIColor.init(cgColor: UIColor.blue.withAlphaComponent(0.7).cgColor)
         
         let colorFilter: CIFilter = CIFilter.init(name: "CIFalseColor")!
         colorFilter.setValue(filter.outputImage, forKey: "inputImage")
