@@ -82,6 +82,7 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
         preview?.addGestureRecognizer(tap)
     }
     
+    //调焦
     func pinchPreview(_ recognizer: UIPinchGestureRecognizer) -> Void {
         var scale = deviceScale + (recognizer.scale - 1);
         
@@ -101,6 +102,7 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
 
     }
     
+    //对焦
     func tapPreview(_ recognizer: UITapGestureRecognizer) -> Void {
         let point = recognizer.location(in: preview)
         let devicePoint = previewLayer?.captureDevicePointOfInterest(for: point)
