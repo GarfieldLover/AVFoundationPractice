@@ -21,7 +21,6 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
     
     var image: UIImage!
     var assetCollection: PHAssetCollection!
-    var albumFound : Bool = false
     var photosAsset: PHFetchResult<PHAsset>!
     var assetThumbnailSize:CGSize!
     var collection: PHAssetCollection!
@@ -73,8 +72,7 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
     }
     
     @IBAction func takePhoto(button: UIButton) -> Void {
-//        button.isUserInteractionEnabled = false
-        
+        //好像也没啥用
         let settings = AVCapturePhotoSettings()
         let previewPixelType = settings.availablePreviewPhotoPixelFormatTypes.first!
         let previewFormat = [kCVPixelBufferPixelFormatTypeKey as String: previewPixelType,
@@ -86,64 +84,66 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
         photoOutput?.capturePhoto(with: settings, delegate: self)
     }
     
-    func capture(_ captureOutput: AVCapturePhotoOutput, didFinishCaptureForResolvedSettings resolvedSettings: AVCaptureResolvedPhotoSettings, error: Error?) {
-        
-    }
-    
     func capture(_ captureOutput: AVCapturePhotoOutput, didFinishProcessingPhotoSampleBuffer photoSampleBuffer: CMSampleBuffer?, previewPhotoSampleBuffer: CMSampleBuffer?, resolvedSettings: AVCaptureResolvedPhotoSettings, bracketSettings: AVCaptureBracketedStillImageSettings?, error: Error?) {
         
-        if let sampleBuffer = photoSampleBuffer, let previewBuffer = previewPhotoSampleBuffer, let dataImage = AVCapturePhotoOutput.jpegPhotoDataRepresentation(forJPEGSampleBuffer: sampleBuffer, previewPhotoSampleBuffer: previewBuffer) {
-            
-            self.image = UIImage.init(data: dataImage)
-            
-            self.createAlbum()
-            self.saveImage()
-//            print(image: UIImage(data: dataImage).size)
-            
-        } else {
-            
+    
+        DispatchQueue.global().async {
+            if let sampleBuffer = photoSampleBuffer, let previewBuffer = previewPhotoSampleBuffer, let dataImage = AVCapturePhotoOutput.jpegPhotoDataRepresentation(forJPEGSampleBuffer: sampleBuffer, previewPhotoSampleBuffer: previewBuffer) {
+                
+                //            - width : 2448.0
+                //            - height : 3264.0
+                let image: UIImage = UIImage.init(data: dataImage)!
+                
+                self.createAlbum()
+                self.saveImage(image)
+                
+            } else {
+                
+            }
         }
     }
     
     func createAlbum() {
-        //Get PHFetch Options
+        //筛选相册
         let fetchOptions = PHFetchOptions()
-        fetchOptions.predicate = NSPredicate(format: "title = %@", "camcam")
-        let collection : PHFetchResult = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
-        //Check return value - If found, then get the first album out
-        if let _: AnyObject = collection.firstObject {
-            self.albumFound = true
-            assetCollection = collection.firstObject
+        fetchOptions.predicate = NSPredicate(format: "title = %@", "AVTakePhotoPractice")
+        let fetchResult : PHFetchResult = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
+        //筛选结果，如果有结果，第一个是资源集合
+        if let _: AnyObject = fetchResult.firstObject {
+            self.assetCollection = fetchResult.firstObject
         } else {
-            //If not found - Then create a new album
+            
+            //如果没，创建
             PHPhotoLibrary.shared().performChanges({
-                let createAlbumRequest : PHAssetCollectionChangeRequest = PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: "camcam")
+                let createAlbumRequest : PHAssetCollectionChangeRequest = PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: "AVTakePhotoPractice")
                 self.assetCollectionPlaceholder = createAlbumRequest.placeholderForCreatedAssetCollection
                 }, completionHandler: { success, error in
-                    self.albumFound = (success ? true: false)
-                    
                     if (success) {
                         let collectionFetchResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [self.assetCollectionPlaceholder.localIdentifier], options: nil)
-                        print(collectionFetchResult)
                         self.assetCollection = collectionFetchResult.firstObject
                     }
             })
         }
     }
     
-    func saveImage(){
+    func saveImage(_ image: UIImage){
+        //执行更新
         PHPhotoLibrary.shared().performChanges({
-            let assetRequest = PHAssetChangeRequest.creationRequestForAsset(from: self.image)
+            //创建资源
+            let assetRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
             let assetPlaceholder = assetRequest.placeholderForCreatedAsset
-            let albumChangeRequest = PHAssetCollectionChangeRequest.init(for: self.assetCollection, assets: self.photosAsset)
-            albumChangeRequest!.addAssets(assetPlaceholder as! NSFastEnumeration)
-//            addAssets([assetPlaceholder!])
-            }, completionHandler: { success, error in
-                print("added image to album")
-                print(error)
-                
-                //self.showImages()
-        })
+            //相册更新请求
+            let albumChangeRequest = PHAssetCollectionChangeRequest.init(for: self.assetCollection)
+            //更新添加资源
+            let fastEnumeration = NSArray(array: [assetPlaceholder!])
+            albumChangeRequest?.addAssets(fastEnumeration)
+        }) { (success, error) in
+            if success {
+            
+            } else {
+            
+            }
+        }
     }
 
     override var prefersStatusBarHidden: Bool{
