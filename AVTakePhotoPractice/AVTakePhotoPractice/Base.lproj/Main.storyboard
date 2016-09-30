@@ -19,6 +19,12 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qkp-t7-m7F">
+                                <subviews>
+                                    <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="camera_aperture" translatesAutoresizingMaskIntoConstraints="NO" id="hp5-FR-pkg">
+                                        <frame key="frameInset" width="80" height="80"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    </imageView>
+                                </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5Ni-RA-KrZ">
@@ -94,15 +100,17 @@
                     </view>
                     <nil key="simulatedStatusBarMetrics"/>
                     <connections>
+                        <outlet property="focusImageView" destination="hp5-FR-pkg" id="aeu-dp-apo"/>
                         <outlet property="preview" destination="qkp-t7-m7F" id="Ruh-hD-zWe"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="439" y="59"/>
+            <point key="canvasLocation" x="4" y="99"/>
         </scene>
     </scenes>
     <resources>
+        <image name="camera_aperture" width="80" height="80"/>
         <image name="camera_flashlight_0" width="44" height="44"/>
         <image name="camera_overturn" width="44" height="44"/>
         <image name="camera_shutter" width="70" height="70"/>

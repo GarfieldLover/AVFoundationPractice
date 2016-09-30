@@ -13,11 +13,13 @@ import Photos
 class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
     
     @IBOutlet weak var preview: UIView?
+    @IBOutlet var focusImageView: UIImageView?
 
     var session: AVCaptureSession?
     var photoOutput: AVCapturePhotoOutput?
     var device: AVCaptureDevice?
     var previewLayer: AVCaptureVideoPreviewLayer?
+    var deviceScale: CGFloat = 0.0
     
     var image: UIImage!
     var assetCollection: PHAssetCollection!
@@ -51,6 +53,8 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
         previewLayer = AVCaptureVideoPreviewLayer.init(session: session)
         previewLayer?.videoGravity = AVLayerVideoGravityResizeAspectFill
         preview?.layer.insertSublayer(previewLayer!, at: 0)
+        
+        self.setPreviewGesture()
     }
     
     override func viewDidLayoutSubviews() {
@@ -69,6 +73,58 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
         super.viewWillDisappear(animated)
         
         session?.stopRunning()
+    }
+    
+    func setPreviewGesture() -> Void {
+        let pinch = UIPinchGestureRecognizer.init(target: self, action: #selector(pinchPreview))
+        let tap = UITapGestureRecognizer.init(target: self, action: #selector(tapPreview))
+        preview?.addGestureRecognizer(pinch)
+        preview?.addGestureRecognizer(tap)
+    }
+    
+    func pinchPreview(_ recognizer: UIPinchGestureRecognizer) -> Void {
+        var scale = deviceScale + (recognizer.scale - 1);
+        
+        if scale>5 {
+            scale = 5
+        } else if scale<1 {
+            scale = 1
+        }
+        
+        try! device?.lockForConfiguration()
+        device?.videoZoomFactor = scale;
+        device?.unlockForConfiguration()
+        
+        if recognizer.state == UIGestureRecognizerState.ended {
+            deviceScale = scale
+        }
+
+    }
+    
+    func tapPreview(_ recognizer: UITapGestureRecognizer) -> Void {
+        let point = recognizer.location(in: preview)
+        let devicePoint = previewLayer?.captureDevicePointOfInterest(for: point)
+        
+        if (device?.isFocusModeSupported(.autoFocus))! && (device?.isFocusPointOfInterestSupported)! {
+            try! device?.lockForConfiguration()
+            device?.focusPointOfInterest = devicePoint!
+            device?.exposurePointOfInterest = devicePoint!
+            device?.focusMode = .autoFocus
+            device?.unlockForConfiguration()
+        }
+        
+        focusImageView?.layer.removeAllAnimations()
+        focusImageView?.isHidden = false
+        focusImageView?.center = point
+        focusImageView?.transform = CGAffineTransform.init(scaleX: 1.5, y: 1.5)
+        UIView.animate(withDuration: 0.3, animations: {
+            self.focusImageView?.transform = CGAffineTransform.identity
+        }) { (finish) in
+            //连续点击需要cancel
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+                self.focusImageView?.isHidden = true
+            })
+        }
     }
     
     @IBAction func takePhoto(button: UIButton) -> Void {
