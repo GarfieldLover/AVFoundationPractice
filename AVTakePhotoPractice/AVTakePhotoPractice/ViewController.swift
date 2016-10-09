@@ -84,7 +84,11 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
     
     //调焦
     func pinchPreview(_ recognizer: UIPinchGestureRecognizer) -> Void {
-        var scale = deviceScale + (recognizer.scale - 1);
+        var scale = recognizer.scale - 1;
+        if(scale<0){
+            scale*=1.3;
+        }
+        scale += deviceScale ;
         
         if scale>5 {
             scale = 5
@@ -129,6 +133,20 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
         }
     }
     
+    //
+    func switchCamera() -> Void {
+        AVCaptureDevice.defaultDevice(withDeviceType: .builtInWideAngleCamera, mediaType: AVMediaTypeVideo, position: .front)
+        AVCaptureDevice.defaultDevice(withDeviceType: .builtInWideAngleCamera, mediaType: AVMediaTypeVideo, position: .back)
+        AVCaptureDevice.defaultDevice(withDeviceType: .builtInMicrophone, mediaType: AVMediaTypeAudio, position: .unspecified)
+
+        device.cap
+        AVCaptureDeviceDiscoverySession
+        [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+
+    }
+    
+    
+    //拍照
     @IBAction func takePhoto(button: UIButton) -> Void {
         //好像也没啥用
         let settings = AVCapturePhotoSettings()
