@@ -10,7 +10,7 @@ import UIKit
 import AVFoundation
 import Photos
 
-class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
+class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCaptureMetadataOutputObjectsDelegate {
     
     @IBOutlet weak var preview: UIView?
     @IBOutlet weak var focusImageView: UIImageView?
@@ -20,9 +20,9 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
     var photoOutput: AVCapturePhotoOutput?
     var device: AVCaptureDevice?
     var deviceInput: AVCaptureDeviceInput?
-
     var previewLayer: AVCaptureVideoPreviewLayer?
     var deviceScale: CGFloat = 0.0
+    var metadataOutput: AVCaptureMetadataOutput?
     
     var image: UIImage!
     var assetCollection: PHAssetCollection!
@@ -30,6 +30,9 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
     var assetThumbnailSize:CGSize!
     var collection: PHAssetCollection!
     var assetCollectionPlaceholder: PHObjectPlaceholder!
+    
+    var faceLayer: CALayer?
+    var faceObject: AVMetadataFaceObject?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,6 +58,13 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
         previewLayer = AVCaptureVideoPreviewLayer.init(session: session)
         previewLayer?.videoGravity = AVLayerVideoGravityResizeAspectFill
         preview?.layer.insertSublayer(previewLayer!, at: 0)
+        
+        //元数据输出
+        metadataOutput = AVCaptureMetadataOutput.init()
+        metadataOutput?.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
+        session?.addOutput(metadataOutput)
+        metadataOutput?.metadataObjectTypes = [AVMetadataObjectTypeFace]
+
         
         self.setPreviewGesture()
     }
@@ -231,6 +241,31 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
             } else {
             
             }
+        }
+    }
+    
+    
+    //MARK: -人脸
+    func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [Any]!, from connection: AVCaptureConnection!) {
+        if metadataObjects.count > 0 {
+            //识别到的第一张脸
+            faceObject = metadataObjects.first as? AVMetadataFaceObject
+            
+            if faceLayer == nil {
+                faceLayer = CALayer()
+                faceLayer?.borderColor = UIColor.red.cgColor
+                faceLayer?.borderWidth = 1
+                view.layer.addSublayer(faceLayer!)
+            }
+            let faceBounds = faceObject?.bounds
+            let viewSize = view.bounds.size
+            
+            faceLayer?.position = CGPoint(x: viewSize.width * (1 - (faceBounds?.origin.y)! - (faceBounds?.size.height)! / 2),
+                                          y: viewSize.height * ((faceBounds?.origin.x)! + (faceBounds?.size.width)! / 2))
+            
+            faceLayer?.bounds.size = CGSize(width: (faceBounds?.size.height)! * viewSize.width,
+                                            height: (faceBounds?.size.width)! * viewSize.height)
+            
         }
     }
 
