@@ -67,6 +67,9 @@
                                             <constraint firstAttribute="width" constant="54" id="Edk-ew-bhO"/>
                                         </constraints>
                                         <state key="normal" image="camera_overturn"/>
+                                        <connections>
+                                            <action selector="switchCamera" destination="BYZ-38-t0r" eventType="touchUpInside" id="2LS-Wm-hCZ"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
@@ -100,6 +103,7 @@
                     </view>
                     <nil key="simulatedStatusBarMetrics"/>
                     <connections>
+                        <outlet property="flashButton" destination="Iq5-2n-TbF" id="ZEP-tn-Iko"/>
                         <outlet property="focusImageView" destination="hp5-FR-pkg" id="aeu-dp-apo"/>
                         <outlet property="preview" destination="qkp-t7-m7F" id="Ruh-hD-zWe"/>
                     </connections>

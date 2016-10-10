@@ -13,11 +13,14 @@ import Photos
 class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
     
     @IBOutlet weak var preview: UIView?
-    @IBOutlet var focusImageView: UIImageView?
+    @IBOutlet weak var focusImageView: UIImageView?
+    @IBOutlet weak var flashButton: UIButton?
 
     var session: AVCaptureSession?
     var photoOutput: AVCapturePhotoOutput?
     var device: AVCaptureDevice?
+    var deviceInput: AVCaptureDeviceInput?
+
     var previewLayer: AVCaptureVideoPreviewLayer?
     var deviceScale: CGFloat = 0.0
     
@@ -32,13 +35,12 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
         super.viewDidLoad()
         
         device = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
-
+        
         //输入
-        let input: AVCaptureDeviceInput?
         do{
-            input = try AVCaptureDeviceInput.init(device: device)
+            deviceInput = try AVCaptureDeviceInput.init(device: device)
         }catch{
-            input = nil
+            deviceInput = nil
         }
         
         photoOutput = AVCapturePhotoOutput.init()
@@ -46,7 +48,7 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
         //捕获会话
         session = AVCaptureSession.init()
         session?.sessionPreset = AVCaptureSessionPresetPhoto;
-        session?.addInput(input)
+        session?.addInput(deviceInput)
         session?.addOutput(photoOutput)
         
         //预览
@@ -133,15 +135,24 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
         }
     }
     
-    //
-    func switchCamera() -> Void {
-        AVCaptureDevice.defaultDevice(withDeviceType: .builtInWideAngleCamera, mediaType: AVMediaTypeVideo, position: .front)
-        AVCaptureDevice.defaultDevice(withDeviceType: .builtInWideAngleCamera, mediaType: AVMediaTypeVideo, position: .back)
-        AVCaptureDevice.defaultDevice(withDeviceType: .builtInMicrophone, mediaType: AVMediaTypeAudio, position: .unspecified)
+    //切换摄像头
+    @IBAction func switchCamera() -> Void {
+        var position: AVCaptureDevicePosition = .front
+        if deviceInput?.device.position == .front {
+            position = .back
+        }else {
+            position = .front
+        }
+        
+        let device: AVCaptureDevice = AVCaptureDevice.defaultDevice(withDeviceType: .builtInWideAngleCamera, mediaType: AVMediaTypeVideo, position: position)
+        let newInput = try! AVCaptureDeviceInput.init(device: device)
 
-        device.cap
-        AVCaptureDeviceDiscoverySession
-        [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+        session?.beginConfiguration()
+        session?.removeInput(deviceInput)
+        session?.addInput(newInput)
+        session?.commitConfiguration()
+        deviceInput = newInput
+        flashButton?.isHidden = device.isFlashAvailable
 
     }
     
@@ -160,6 +171,7 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate {
         photoOutput?.capturePhoto(with: settings, delegate: self)
     }
     
+    //代理
     func capture(_ captureOutput: AVCapturePhotoOutput, didFinishProcessingPhotoSampleBuffer photoSampleBuffer: CMSampleBuffer?, previewPhotoSampleBuffer: CMSampleBuffer?, resolvedSettings: AVCaptureResolvedPhotoSettings, bracketSettings: AVCaptureBracketedStillImageSettings?, error: Error?) {
         
     
