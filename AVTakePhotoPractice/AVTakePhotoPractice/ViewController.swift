@@ -10,6 +10,13 @@ import UIKit
 import AVFoundation
 import Photos
 
+
+class FaceObject: Any {
+    var face: AVMetadataFaceObject?
+    var faceView: UIView?
+
+}
+
 class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCaptureMetadataOutputObjectsDelegate {
     
     @IBOutlet weak var preview: UIView?
@@ -31,8 +38,7 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
     var collection: PHAssetCollection!
     var assetCollectionPlaceholder: PHObjectPlaceholder!
     
-    var faceLayer: CALayer?
-    var faceObject: AVMetadataFaceObject?
+    var latestFaces: NSMutableArray = NSMutableArray.init()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -97,9 +103,9 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
     //调焦
     func pinchPreview(_ recognizer: UIPinchGestureRecognizer) -> Void {
         var scale = recognizer.scale - 1;
-        if(scale<0){
-            scale*=1.3;
-        }
+        //if(scale<0){
+        //    scale*=1.3;
+        //}
         scale += deviceScale ;
         
         if scale>5 {
@@ -246,27 +252,74 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
     
     
     //MARK: -人脸
+    //定义了多个用于描述被检测到的人脸的属性,包括人脸的边界(设备坐标系),以及斜倾角(roll angle,表示人头部向肩膀方向的侧倾角度)和偏转角(yaw angle,表示人脸绕Y轴旋转的角度).
+    //功能太简单，不能识别人眼，眨眼。
     func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [Any]!, from connection: AVCaptureConnection!) {
-        if metadataObjects.count > 0 {
-            //识别到的第一张脸
-            faceObject = metadataObjects.first as? AVMetadataFaceObject
-            
-            if faceLayer == nil {
-                faceLayer = CALayer()
-                faceLayer?.borderColor = UIColor.red.cgColor
-                faceLayer?.borderWidth = 1
-                view.layer.addSublayer(faceLayer!)
-            }
-            let faceBounds = faceObject?.bounds
-            let viewSize = view.bounds.size
-            
-            faceLayer?.position = CGPoint(x: viewSize.width * (1 - (faceBounds?.origin.y)! - (faceBounds?.size.height)! / 2),
-                                          y: viewSize.height * ((faceBounds?.origin.x)! + (faceBounds?.size.width)! / 2))
-            
-            faceLayer?.bounds.size = CGSize(width: (faceBounds?.size.height)! * viewSize.width,
-                                            height: (faceBounds?.size.width)! * viewSize.height)
-            
+        
+        self.didDetectFaces(faces: metadataObjects)
+    }
+    
+    //先转换坐标，再添加view，更新view，删除已经不识别的人脸， 可以做过1秒删除，
+    func didDetectFaces(faces: [Any]) {
+        //1. 创建一个数组用于保存转换后的人脸数据
+        var transformedFaces = [AVMetadataObject]()
+        
+        //2. 遍历传入的人脸数据进行转换
+        for face in faces {
+            //3. 元数据对象就会被转化成图层的坐标
+            let transformedFace = previewLayer?.transformedMetadataObject(for: face as! AVMetadataObject)
+            transformedFaces.append(transformedFace!)
         }
+        
+        //.遍历新检测到的人脸信息
+        //ADD
+        for metadataFace in transformedFaces {
+            let faceID =  (metadataFace as! AVMetadataFaceObject).faceID
+
+            for object in latestFaces {
+                let face: FaceObject = object as! FaceObject
+                if face.face?.faceID == faceID {
+                    UIView.animate(withDuration: 0.15, animations: {
+                        face.faceView?.frame = (metadataFace as! AVMetadataFaceObject).bounds
+                    })
+                    continue
+                }
+            }
+            
+            let view = UIView(frame: (metadataFace as! AVMetadataFaceObject).bounds)
+            view.layer.borderColor = UIColor(colorLiteralRed: 1.000, green: 0.421, blue: 0.054, alpha: 1.000).cgColor
+            view.layer.borderWidth = 2
+            previewLayer?.insertSublayer(view.layer, above: previewLayer)
+            
+            let face: FaceObject = FaceObject.init()
+            face.face = metadataFace as? AVMetadataFaceObject
+            face.faceView = view
+            latestFaces.add(face)
+        }
+        //remove
+        let removeFaces: NSMutableArray = NSMutableArray.init()
+
+        for object in latestFaces {
+            let face: FaceObject = object as! FaceObject
+            
+            var remove = true
+            for metadataFace in transformedFaces {
+                let faceID =  (metadataFace as! AVMetadataFaceObject).faceID
+                if face.face?.faceID == faceID {
+                    remove = false
+                    break
+                }
+            }
+            if remove {
+                removeFaces.add(face)
+            }
+        }
+        for face in removeFaces {
+            let object: FaceObject = face as! FaceObject
+            object.faceView?.removeFromSuperview()
+            latestFaces.remove(face)
+        }
+        
     }
 
     override var prefersStatusBarHidden: Bool{
