@@ -71,6 +71,11 @@
                                             <action selector="switchCamera" destination="BYZ-38-t0r" eventType="touchUpInside" id="2LS-Wm-hCZ"/>
                                         </connections>
                                     </button>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="camera_overturn" translatesAutoresizingMaskIntoConstraints="NO" id="hbG-YS-rcj">
+                                        <frame key="frameInset" minX="70" minY="-12" width="122" height="104"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                    </imageView>
                                 </subviews>
                                 <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
@@ -106,11 +111,12 @@
                         <outlet property="flashButton" destination="Iq5-2n-TbF" id="ZEP-tn-Iko"/>
                         <outlet property="focusImageView" destination="hp5-FR-pkg" id="aeu-dp-apo"/>
                         <outlet property="preview" destination="qkp-t7-m7F" id="Ruh-hD-zWe"/>
+                        <outlet property="xxxxx" destination="hbG-YS-rcj" id="CK9-Np-Iv9"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4" y="99"/>
+            <point key="canvasLocation" x="2.8985507246376816" y="98.641304347826093"/>
         </scene>
     </scenes>
     <resources>
