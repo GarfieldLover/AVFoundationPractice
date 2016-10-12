@@ -94,16 +94,28 @@
                                     <constraint firstItem="iCS-rb-VcJ" firstAttribute="bottom" secondItem="aqG-eR-X1t" secondAttribute="bottom" id="vpP-p5-biJ"/>
                                 </constraints>
                             </view>
+                            <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="j6U-9G-H0j">
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                            </view>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TI0-JI-bvb">
+                                <frame key="frameInset" minX="4" minY="400" width="406" height="236"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="j6U-9G-H0j" firstAttribute="trailing" secondItem="qkp-t7-m7F" secondAttribute="trailing" id="0wD-uA-f6I"/>
                             <constraint firstAttribute="trailing" secondItem="5Ni-RA-KrZ" secondAttribute="trailing" id="6vd-4i-kae"/>
                             <constraint firstItem="5Ni-RA-KrZ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="AV6-Tw-y7u"/>
+                            <constraint firstItem="j6U-9G-H0j" firstAttribute="bottom" secondItem="qkp-t7-m7F" secondAttribute="bottom" id="DWB-RP-dlp"/>
                             <constraint firstItem="qkp-t7-m7F" firstAttribute="top" secondItem="5Ni-RA-KrZ" secondAttribute="bottom" id="NQE-D7-Wa3"/>
                             <constraint firstItem="5Ni-RA-KrZ" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="Sue-Yg-VNt"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="qkp-t7-m7F" secondAttribute="bottom" constant="79" id="ViH-d9-gb8"/>
+                            <constraint firstItem="j6U-9G-H0j" firstAttribute="top" secondItem="qkp-t7-m7F" secondAttribute="top" id="XP1-TD-mYN"/>
                             <constraint firstItem="5Ni-RA-KrZ" firstAttribute="trailing" secondItem="qkp-t7-m7F" secondAttribute="trailing" id="bDE-y5-HKg"/>
                             <constraint firstItem="qkp-t7-m7F" firstAttribute="trailing" secondItem="Dd8-jU-E4C" secondAttribute="trailing" id="hQn-wu-Nqk"/>
+                            <constraint firstItem="j6U-9G-H0j" firstAttribute="leading" secondItem="qkp-t7-m7F" secondAttribute="leading" id="lE4-9r-Qud"/>
                             <constraint firstItem="Dd8-jU-E4C" firstAttribute="bottom" secondItem="wfy-db-euE" secondAttribute="top" id="mgC-VA-XF3"/>
                             <constraint firstItem="5Ni-RA-KrZ" firstAttribute="leading" secondItem="qkp-t7-m7F" secondAttribute="leading" id="zLK-wX-jxc"/>
                             <constraint firstItem="qkp-t7-m7F" firstAttribute="leading" secondItem="Dd8-jU-E4C" secondAttribute="leading" id="zhp-F3-Hdf"/>
@@ -114,7 +126,9 @@
                         <outlet property="flashButton" destination="Iq5-2n-TbF" id="ZEP-tn-Iko"/>
                         <outlet property="focusImageView" destination="hp5-FR-pkg" id="aeu-dp-apo"/>
                         <outlet property="preview" destination="qkp-t7-m7F" id="Ruh-hD-zWe"/>
+                        <outlet property="previewOverView" destination="j6U-9G-H0j" id="xvo-Au-j5B"/>
                         <outlet property="recordsButton" destination="jhC-Hx-4qn" id="HKH-1M-D4Q"/>
+                        <outlet property="xxxxxxxx" destination="TI0-JI-bvb" id="kCs-wW-dI9"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

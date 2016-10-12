@@ -22,7 +22,9 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
     @IBOutlet weak var preview: UIView!
     @IBOutlet weak var focusImageView: UIImageView?
     @IBOutlet weak var flashButton: UIButton?
-    
+    @IBOutlet weak var previewOverView: UIView?
+    @IBOutlet weak var xxxxxxxx: UIImageView?
+
     var session: AVCaptureSession?
     var device: AVCaptureDevice?
     var deviceInput: AVCaptureDeviceInput?
@@ -217,6 +219,7 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
             
         #else
             //第2种
+            //这种方法清晰度不够啊
             if ciImage == nil || isWriting {
                 return
             }
@@ -228,7 +231,6 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
                 self.createAlbum()
                 self.saveImage(image)
             }
-            
             
         #endif
     }
@@ -388,7 +390,7 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
         }
     }
     
-    func makeFaceWithCIImage(inputImage: CIImage, faceObject: AVMetadataFaceObject) -> CIImage {
+    func makeFaceWithCIImage(inputImage: CIImage, bounds: CGRect) -> CIImage {
         let filter = CIFilter(name: "CIPixellate")!
         filter.setValue(inputImage, forKey: kCIInputImageKey)
         // 1.
@@ -397,7 +399,7 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
         let fullPixellatedImage = filter.outputImage
         
         var maskImage: CIImage!
-        let faceBounds = faceObject.bounds
+        let faceBounds = bounds
         
         // 2.
         let centerX = inputImage.extent.size.width * (faceBounds.origin.x + faceBounds.size.width / 2)
@@ -432,131 +434,164 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
         return blendFilter.outputImage!
     }
 
+
     //先画layer，再合成
     //MARK: -通过摄像头读取每一帧的图片，并且做识别做人脸识别
     func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
         
-        autoreleasepool {
-            let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer)!
-            self.currentVideoDimensions = CMVideoFormatDescriptionGetDimensions(formatDescription)
-            self.currentSampleTime = CMSampleBufferGetOutputPresentationTimeStamp(sampleBuffer)
+
             
-            let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
-            var outputImage = CIImage(cvPixelBuffer: imageBuffer!)
+            DispatchQueue.main.sync {
+                
+                autoreleasepool {
+                    let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer)!
+                    self.currentVideoDimensions = CMVideoFormatDescriptionGetDimensions(formatDescription)
+                    self.currentSampleTime = CMSampleBufferGetOutputPresentationTimeStamp(sampleBuffer)
+                    
+                    let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
+                    var outputImage = CIImage(cvPixelBuffer: imageBuffer!)
+                    
+                    let orientation = UIDevice.current.orientation
+                    var t: CGAffineTransform!
+                    if orientation == UIDeviceOrientation.portrait {
+                        t = CGAffineTransform(rotationAngle: CGFloat(-M_PI / 2.0))
+                    } else if orientation == UIDeviceOrientation.portraitUpsideDown {
+                        t = CGAffineTransform(rotationAngle: CGFloat(M_PI / 2.0))
+                    } else if (orientation == UIDeviceOrientation.landscapeRight) {
+                        t = CGAffineTransform(rotationAngle: CGFloat(M_PI))
+                    } else {
+                        t = CGAffineTransform(rotationAngle: 0)
+                    }
+                    outputImage = outputImage.applying(t)
+                
+                
+                let detecotr = CIDetector(ofType:CIDetectorTypeFace,  context:context, options:[CIDetectorAccuracy: CIDetectorAccuracyHigh])
+                let faceFeatures: [CIFaceFeature]? = detecotr!.features(in: outputImage) as? [CIFaceFeature]
+                
+                if faceFeatures?.count==0 {
+                    return
+                }
+                
+                //只做单人的
+                let faceFeature: CIFaceFeature = faceFeatures!.first!
+                
+                // 1.
+                let inputImageSize = outputImage.extent.size
+                var transform = CGAffineTransform.identity
+                transform = transform.scaledBy(x: 1, y: -1)
+                
+                //坐标反转？
+                var faceViewBounds = faceFeature.bounds.applying(transform)
+                // 2.
+                let scale = min(preview.bounds.size.width / inputImageSize.width,
+                                preview.bounds.size.height / inputImageSize.height)
+                let offsetX = (preview.bounds.size.width - inputImageSize.width * scale) / 2
+                let offsetY = (preview.bounds.size.height - inputImageSize.height * scale) / 2
+                //按图片 view比例
+                faceViewBounds = faceViewBounds.applying(CGAffineTransform(scaleX: scale, y: scale))
+                faceViewBounds.origin.x += offsetX
+                faceViewBounds.origin.y += offsetY
+                
+                if faceView != nil {
+                    faceView?.frame = faceViewBounds
+                }else {
+                    faceView = UIView(frame: faceViewBounds)
+                    faceView?.layer.borderColor = UIColor.orange.cgColor
+                    faceView?.layer.borderWidth = 1
+                    
+                    previewOverView?.addSubview(faceView!)
+                }
+                
+                if faceFeature.hasLeftEyePosition {
+                    var leftEyePosition = faceFeature.leftEyePosition.applying(transform)
+                    leftEyePosition = leftEyePosition.applying(CGAffineTransform(scaleX: scale, y: scale))
+                    let LeftEyeBounds = CGRect.init(x: leftEyePosition.x-faceViewBounds.size.width/4/2, y: leftEyePosition.y-faceViewBounds.size.width/4/2, width: faceViewBounds.size.width/4, height: faceViewBounds.size.width/4)
+                    
+                    if LeftEyeView != nil {
+                        LeftEyeView?.frame = LeftEyeBounds
+                    }else {
+                        LeftEyeView = UIView(frame: LeftEyeBounds)
+                        LeftEyeView?.layer.borderColor = UIColor.green.cgColor
+                        LeftEyeView?.layer.borderWidth = 1
+                        previewOverView?.addSubview(LeftEyeView!)
+                    }
+                }
+                
+                if faceFeature.hasRightEyePosition {
+                    var RightEyePosition = faceFeature.rightEyePosition.applying(transform)
+                    RightEyePosition = RightEyePosition.applying(CGAffineTransform(scaleX: scale, y: scale))
+                    let RightEyeBounds = CGRect.init(x: RightEyePosition.x-faceViewBounds.size.width/4/2, y: RightEyePosition.y-faceViewBounds.size.width/4/2, width: faceViewBounds.size.width/4, height: faceViewBounds.size.width/4)
+                    
+                    if RightEyeView != nil {
+                        RightEyeView?.frame = RightEyeBounds
+                    }else {
+                        RightEyeView = UIView(frame: RightEyeBounds)
+                        RightEyeView?.layer.borderColor = UIColor.green.cgColor
+                        RightEyeView?.layer.borderWidth = 1
+                        previewOverView?.addSubview(RightEyeView!)
+                    }
+                }
+                
+                if faceFeature.hasMouthPosition {
+                    
+                }
+                if faceFeature.hasFaceAngle {
+                    
+                }
+                //没法检测出闭眼，太弱了，侧脸也没法检测
+                if faceFeature.hasSmile {
+                    
+                }
+                if faceFeature.leftEyeClosed {
+                    LeftEyeView?.isHidden = true
+                }
+                if faceFeature.rightEyeClosed {
+                    RightEyeView?.isHidden = true
+                }
+
+                    
+                UIGraphicsBeginImageContext((previewOverView?.bounds.size)!)
+                    let cgcontext: CGContext? = UIGraphicsGetCurrentContext()
+                previewOverView?.layer.render(in: cgcontext!)
+                let image = UIGraphicsGetImageFromCurrentImageContext()
+                UIGraphicsEndImageContext()
+                
+                xxxxxxxx?.image = image
+                
             
-            // 录制视频的处理
-            if self.isWriting {
-                if self.assetWriterPixelBufferInput?.assetWriterInput.isReadyForMoreMediaData == true {
-                    var newPixelBuffer: CVPixelBuffer? = nil
+                let cixxx = CIImage.init(image: image!)
                     
-                    CVPixelBufferPoolCreatePixelBuffer(nil, self.assetWriterPixelBufferInput!.pixelBufferPool!, &newPixelBuffer)
+                let blendFilter = CIFilter(name: "CISourceOverCompositing")!
+                blendFilter.setValue(outputImage, forKey: kCIInputImageKey)
+                blendFilter.setValue(cixxx, forKey: kCIInputBackgroundImageKey)
+                
+                outputImage = blendFilter.outputImage!
+                
+                //截图合成不了，直接读图片可以，真是操了单了
                     
-                    self.context.render(outputImage, to: newPixelBuffer!, bounds: outputImage.extent, colorSpace: nil)
-                    
-                    let success = self.assetWriterPixelBufferInput?.append(newPixelBuffer!, withPresentationTime: self.currentSampleTime!)
-                    
-                    if success == false {
-                        print("Pixel Buffer没有附加成功")
+                    //outputImage = self.makeFaceWithCIImage(inputImage: outputImage, bounds: (faceView?.frame)!)
+
+                self.ciImage = outputImage
+                
+                // 录制视频的处理
+                if self.isWriting {
+                    if self.assetWriterPixelBufferInput?.assetWriterInput.isReadyForMoreMediaData == true {
+                        var newPixelBuffer: CVPixelBuffer? = nil
+                        
+                        CVPixelBufferPoolCreatePixelBuffer(nil, self.assetWriterPixelBufferInput!.pixelBufferPool!, &newPixelBuffer)
+                        
+                        self.context.render(outputImage, to: newPixelBuffer!, bounds: outputImage.extent, colorSpace: CGColorSpaceCreateDeviceRGB())
+                        
+                        let success = self.assetWriterPixelBufferInput?.append(newPixelBuffer!, withPresentationTime: self.currentSampleTime!)
+                        
+                        if success == false {
+                            print("Pixel Buffer没有附加成功")
+                        }
                     }
                 }
             }
             
-            let orientation = UIDevice.current.orientation
-            var t: CGAffineTransform!
-            if orientation == UIDeviceOrientation.portrait {
-                t = CGAffineTransform(rotationAngle: CGFloat(-M_PI / 2.0))
-            } else if orientation == UIDeviceOrientation.portraitUpsideDown {
-                t = CGAffineTransform(rotationAngle: CGFloat(M_PI / 2.0))
-            } else if (orientation == UIDeviceOrientation.landscapeRight) {
-                t = CGAffineTransform(rotationAngle: CGFloat(M_PI))
-            } else {
-                t = CGAffineTransform(rotationAngle: 0)
-            }
-            outputImage = outputImage.applying(t)
             
-            let detecotr = CIDetector(ofType:CIDetectorTypeFace,  context:context, options:[CIDetectorAccuracy: CIDetectorAccuracyHigh])
-            let faceFeatures: [CIFaceFeature]? = detecotr!.features(in: outputImage) as? [CIFaceFeature]
-            
-            if faceFeatures?.count==0 {
-                return
-            }
-            
-            //只做单人的
-            let faceFeature: CIFaceFeature = faceFeatures!.first!
-            
-            // 1.
-            let inputImageSize = outputImage.extent.size
-            var transform = CGAffineTransform.identity
-            transform = transform.scaledBy(x: 1, y: -1)
-            
-            //坐标反转？
-            var faceViewBounds = faceFeature.bounds.applying(transform)
-            // 2.
-            let scale = min(preview.bounds.size.width / inputImageSize.width,
-                            preview.bounds.size.height / inputImageSize.height)
-            let offsetX = (preview.bounds.size.width - inputImageSize.width * scale) / 2
-            let offsetY = (preview.bounds.size.height - inputImageSize.height * scale) / 2
-            //按图片 view比例
-            faceViewBounds = faceViewBounds.applying(CGAffineTransform(scaleX: scale, y: scale))
-            faceViewBounds.origin.x += offsetX
-            faceViewBounds.origin.y += offsetY
-            
-            if faceView != nil {
-                faceView?.frame = faceViewBounds
-            }else {
-                faceView = UIView(frame: faceViewBounds)
-                faceView?.layer.borderColor = UIColor.orange.cgColor
-                faceView?.layer.borderWidth = 1
-                
-                preview.addSubview(faceView!)
-            }
-            
-            if faceFeature.hasLeftEyePosition {
-                var leftEyePosition = faceFeature.leftEyePosition.applying(transform)
-                leftEyePosition = leftEyePosition.applying(CGAffineTransform(scaleX: scale, y: scale))
-                let LeftEyeBounds = CGRect.init(x: leftEyePosition.x-faceViewBounds.size.width/4/2, y: leftEyePosition.y-faceViewBounds.size.width/4/2, width: faceViewBounds.size.width/4, height: faceViewBounds.size.width/4)
-                
-                if LeftEyeView != nil {
-                    LeftEyeView?.frame = LeftEyeBounds
-                }else {
-                    LeftEyeView = UIView(frame: LeftEyeBounds)
-                    LeftEyeView?.layer.borderColor = UIColor.green.cgColor
-                    LeftEyeView?.layer.borderWidth = 1
-                    preview.addSubview(LeftEyeView!)
-                }
-            }
-            
-            if faceFeature.hasRightEyePosition {
-                var RightEyePosition = faceFeature.rightEyePosition.applying(transform)
-                RightEyePosition = RightEyePosition.applying(CGAffineTransform(scaleX: scale, y: scale))
-                let RightEyeBounds = CGRect.init(x: RightEyePosition.x-faceViewBounds.size.width/4/2, y: RightEyePosition.y-faceViewBounds.size.width/4/2, width: faceViewBounds.size.width/4, height: faceViewBounds.size.width/4)
-                
-                if RightEyeView != nil {
-                    RightEyeView?.frame = RightEyeBounds
-                }else {
-                    RightEyeView = UIView(frame: RightEyeBounds)
-                    RightEyeView?.layer.borderColor = UIColor.green.cgColor
-                    RightEyeView?.layer.borderWidth = 1
-                    preview.addSubview(RightEyeView!)
-                }
-            }
-            
-            if faceFeature.hasMouthPosition {
-                
-            }
-            if faceFeature.hasFaceAngle {
-                
-            }
-            //没法检测出闭眼，太弱了，侧脸也没法检测
-            if faceFeature.hasSmile {
-                
-            }
-            if faceFeature.leftEyeClosed {
-                LeftEyeView?.isHidden = true
-            }
-            if faceFeature.rightEyeClosed {
-                RightEyeView?.isHidden = true
-            }
             
 
         }
