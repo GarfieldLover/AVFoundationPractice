@@ -13,53 +13,5 @@
             stopOnStyle = "0">
          </BreakpointContent>
       </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "AVTakePhotoPractice/AVTakePhotoPractice/ViewController.swift"
-            timestampString = "497872751.67938"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "208"
-            endingLineNumber = "208"
-            landmarkName = "capture(_:didFinishProcessingPhotoSampleBuffer:previewPhotoSampleBuffer:resolvedSettings:bracketSettings:error:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "AVTakePhotoPractice.ViewController.capture (__ObjC.AVCapturePhotoOutput, didFinishProcessingPhotoSampleBuffer : Swift.Optional&lt;__ObjC.CMSampleBuffer&gt;, previewPhotoSampleBuffer : Swift.Optional&lt;__ObjC.CMSampleBuffer&gt;, resolvedSettings : __ObjC.AVCaptureResolvedPhotoSettings, bracketSettings : Swift.Optional&lt;__ObjC.AVCaptureBracketedStillImageSettings&gt;, error : Swift.Optional&lt;Swift.Error&gt;) -&gt; ()"
-                  moduleName = "AVTakePhotoPractice"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/ZK/SOHU/DEV/AVFoundationPractice/AVTakePhotoPractice/AVTakePhotoPractice/ViewController.swift"
-                  timestampString = "497873852.099413"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "208"
-                  endingLineNumber = "208"
-                  offsetFromSymbolStart = "44">
-               </Location>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "AVTakePhotoPractice.ViewController.(capture (__ObjC.AVCapturePhotoOutput, didFinishProcessingPhotoSampleBuffer : Swift.Optional&lt;__ObjC.CMSampleBuffer&gt;, previewPhotoSampleBuffer : Swift.Optional&lt;__ObjC.CMSampleBuffer&gt;, resolvedSettings : __ObjC.AVCaptureResolvedPhotoSettings, bracketSettings : Swift.Optional&lt;__ObjC.AVCaptureBracketedStillImageSettings&gt;, error : Swift.Optional&lt;Swift.Error&gt;) -&gt; ()).(closure #1)"
-                  moduleName = "AVTakePhotoPractice"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/ZK/SOHU/DEV/AVFoundationPractice/AVTakePhotoPractice/AVTakePhotoPractice/ViewController.swift"
-                  timestampString = "497873852.100536"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "209"
-                  endingLineNumber = "209"
-                  offsetFromSymbolStart = "24">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

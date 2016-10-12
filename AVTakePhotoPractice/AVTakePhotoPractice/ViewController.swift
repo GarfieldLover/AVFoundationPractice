@@ -14,7 +14,7 @@ import Photos
 class FaceObject: Any {
     var face: AVMetadataFaceObject?
     var faceView: UIView?
-
+    
 }
 
 class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCaptureMetadataOutputObjectsDelegate, AVCaptureVideoDataOutputSampleBufferDelegate {
@@ -22,8 +22,7 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
     @IBOutlet weak var preview: UIView!
     @IBOutlet weak var focusImageView: UIImageView?
     @IBOutlet weak var flashButton: UIButton?
-    @IBOutlet weak var xxxxx: UIImageView?
-
+    
     var session: AVCaptureSession?
     var device: AVCaptureDevice?
     var deviceInput: AVCaptureDeviceInput?
@@ -32,8 +31,7 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
     var metadataOutput: AVCaptureMetadataOutput?
     var photoOutput: AVCapturePhotoOutput?
     var videoDataOutput: AVCaptureVideoDataOutput?
-
-    var image: UIImage!
+    
     var assetCollection: PHAssetCollection!
     var photosAsset: PHFetchResult<PHAsset>!
     var assetThumbnailSize:CGSize!
@@ -42,8 +40,29 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
     
     var latestFaces: NSMutableArray = NSMutableArray.init()
     
-    var start: Bool = false
+    var context: CIContext! {
+        let testEAGLContext = EAGLContext.init(api: .openGLES3)
+        let testContext = CIContext.init(eaglContext: testEAGLContext!)
+        return testContext
+    }
+    
+    var faceView: UIView?
+    var LeftEyeView: UIView?
+    var RightEyeView: UIView?
+    
+    
+    var filter: CIFilter!
+    var faceObject: AVMetadataFaceObject?
+    var ciImage: CIImage!
 
+    // Video Records
+    @IBOutlet var recordsButton: UIButton!
+    var assetWriter: AVAssetWriter?
+    var assetWriterPixelBufferInput: AVAssetWriterInputPixelBufferAdaptor?
+    var isWriting = false
+    var currentSampleTime: CMTime?
+    var currentVideoDimensions: CMVideoDimensions?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -59,13 +78,13 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
         photoOutput = AVCapturePhotoOutput.init()
         
         videoDataOutput = AVCaptureVideoDataOutput.init()
-
+        
         //捕获会话
         session = AVCaptureSession.init()
         session?.sessionPreset = AVCaptureSessionPresetPhoto;
         session?.addInput(deviceInput)
         session?.addOutput(photoOutput)
-
+        
         //预览
         previewLayer = AVCaptureVideoPreviewLayer.init(session: session)
         previewLayer?.videoGravity = AVLayerVideoGravityResizeAspectFill
@@ -76,12 +95,12 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
         //metadataOutput?.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
         //session?.addOutput(metadataOutput)
         //metadataOutput?.metadataObjectTypes = [AVMetadataObjectTypeFace]
-
+        
         //帧数据输出
         session?.addOutput(videoDataOutput)
         videoDataOutput?.setSampleBufferDelegate(self, queue: DispatchQueue.global())
         videoDataOutput?.videoSettings  = NSDictionary(object: Int(kCVPixelFormatType_32BGRA), forKey: kCVPixelBufferPixelFormatTypeKey as String as NSCopying) as [NSObject : AnyObject]
-
+        
         
         self.setPreviewGesture()
     }
@@ -96,15 +115,12 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
         super.viewWillAppear(animated)
         
         session?.startRunning()
-        start = true
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
         session?.stopRunning()
-        start = false
-
     }
     
     func setPreviewGesture() -> Void {
@@ -117,9 +133,7 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
     //调焦
     func pinchPreview(_ recognizer: UIPinchGestureRecognizer) -> Void {
         var scale = recognizer.scale - 1;
-        //if(scale<0){
-        //    scale*=1.3;
-        //}
+        
         scale += deviceScale ;
         
         if scale>5 {
@@ -135,7 +149,7 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
         if recognizer.state == UIGestureRecognizerState.ended {
             deviceScale = scale
         }
-
+        
     }
     
     //对焦
@@ -176,35 +190,53 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
         
         let device: AVCaptureDevice = AVCaptureDevice.defaultDevice(withDeviceType: .builtInWideAngleCamera, mediaType: AVMediaTypeVideo, position: position)
         let newInput = try! AVCaptureDeviceInput.init(device: device)
-
+        
         session?.beginConfiguration()
         session?.removeInput(deviceInput)
         session?.addInput(newInput)
         session?.commitConfiguration()
         deviceInput = newInput
         flashButton?.isHidden = device.isFlashAvailable
-
+        
     }
-    
     
     //拍照
     @IBAction func takePhoto(button: UIButton) -> Void {
-        //好像也没啥用
-        let settings = AVCapturePhotoSettings()
-        let previewPixelType = settings.availablePreviewPhotoPixelFormatTypes.first!
-        let previewFormat = [kCVPixelBufferPixelFormatTypeKey as String: previewPixelType,
-                             kCVPixelBufferWidthKey as String: 1080,
-                             kCVPixelBufferHeightKey as String: 1920,
-                             ]
-        settings.previewPhotoFormat = previewFormat
-        
-        photoOutput?.capturePhoto(with: settings, delegate: self)
+        #if false
+            //第1种方法
+            //好像也没啥用
+            let settings = AVCapturePhotoSettings()
+            let previewPixelType = settings.availablePreviewPhotoPixelFormatTypes.first!
+            let previewFormat = [kCVPixelBufferPixelFormatTypeKey as String: previewPixelType,
+                                 kCVPixelBufferWidthKey as String: 1080,
+                                 kCVPixelBufferHeightKey as String: 1920,
+                                 ]
+            settings.previewPhotoFormat = previewFormat
+            
+            photoOutput?.capturePhoto(with: settings, delegate: self)
+            
+        #else
+            //第2种
+            if ciImage == nil || isWriting {
+                return
+            }
+            
+            let cgImage = context.createCGImage(ciImage, from: ciImage.extent)
+            let image = UIImage.init(cgImage: cgImage!)
+            
+            DispatchQueue.global().async {
+                self.createAlbum()
+                self.saveImage(image)
+            }
+            
+            
+        #endif
     }
     
     //代理
     func capture(_ captureOutput: AVCapturePhotoOutput, didFinishProcessingPhotoSampleBuffer photoSampleBuffer: CMSampleBuffer?, previewPhotoSampleBuffer: CMSampleBuffer?, resolvedSettings: AVCaptureResolvedPhotoSettings, bracketSettings: AVCaptureBracketedStillImageSettings?, error: Error?) {
         
-    
+        
         DispatchQueue.global().async {
             if let sampleBuffer = photoSampleBuffer, let previewBuffer = previewPhotoSampleBuffer, let dataImage = AVCapturePhotoOutput.jpegPhotoDataRepresentation(forJPEGSampleBuffer: sampleBuffer, previewPhotoSampleBuffer: previewBuffer) {
                 
@@ -214,13 +246,12 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
                 
                 self.createAlbum()
                 self.saveImage(image)
-                
             } else {
                 
             }
         }
     }
-
+    
     func createAlbum() {
         //筛选相册
         let fetchOptions = PHFetchOptions()
@@ -257,42 +288,209 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
             albumChangeRequest?.addAssets(fastEnumeration)
         }) { (success, error) in
             if success {
-            
+                
             } else {
-            
+                
             }
         }
     }
     
-    //MARK: -通过摄像头读取每一帧的图片，并且做识别做人脸识别
-    func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
-
-        if !start {
+    // MARK: - Video Records
+    func saveVideo(){
+        PHPhotoLibrary.shared().performChanges({
+            let assetRequest = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: self.movieURL() as URL)
+            let assetPlaceholder = assetRequest?.placeholderForCreatedAsset
+            let albumChangeRequest = PHAssetCollectionChangeRequest.init(for: self.assetCollection)
+            let fastEnumeration = NSArray(array: [assetPlaceholder!])
+            albumChangeRequest?.addAssets(fastEnumeration)
+        }) { (success, error) in
+            if success {
+                
+            } else {
+                
+            }
+        }
+    }
+    
+    @IBAction func record() {
+        if isWriting {
+            self.isWriting = false
+            assetWriterPixelBufferInput = nil
+            assetWriter?.finishWriting(completionHandler: {[unowned self] () -> Void in
+                print("录制完成")
+                self.createAlbum()
+                self.saveVideo()
+                })
+        } else {
+            createWriter()
+            assetWriter?.startWriting()
+            assetWriter?.startSession(atSourceTime: currentSampleTime!)
+            isWriting = true
+        }
+    }
+    
+    func movieURL() -> NSURL {
+        let tempDir = NSTemporaryDirectory()
+        let url = NSURL(fileURLWithPath: tempDir).appendingPathComponent("tmpMov.mov")
+        return url! as NSURL
+    }
+    
+    func checkForAndDeleteFile() {
+        let fm = FileManager.default
+        let url = movieURL()
+        let exist = fm.fileExists(atPath: url.path!)
+        
+        if exist {
+            print("删除之前的临时文件")
+            do {
+                try fm.removeItem(at: url as URL)
+            } catch let error as NSError {
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    func createWriter() {
+        self.checkForAndDeleteFile()
+        
+        do {
+            assetWriter = try AVAssetWriter.init(url: movieURL() as URL, fileType: AVFileTypeQuickTimeMovie)
+        } catch let error as NSError {
+            print("创建writer失败")
+            print(error.localizedDescription)
             return
         }
-        let resultImage = sampleBufferToImage(sampleBuffer: sampleBuffer)
-        DispatchQueue.main.sync {
-            xxxxx?.image = resultImage
+        
+        let outputSettings = [
+            AVVideoCodecKey : AVVideoCodecH264,
+            AVVideoWidthKey : Int(currentVideoDimensions!.width),
+            AVVideoHeightKey : Int(currentVideoDimensions!.height)
+        ] as [String : Any]
+        
+        let assetWriterVideoInput = AVAssetWriterInput(mediaType: AVMediaTypeVideo, outputSettings: outputSettings)
+        assetWriterVideoInput.expectsMediaDataInRealTime = true
+        assetWriterVideoInput.transform = CGAffineTransform(rotationAngle: CGFloat(M_PI / 2.0))
+        
+        let sourcePixelBufferAttributesDictionary = [
+            String(kCVPixelBufferPixelFormatTypeKey) : Int(kCVPixelFormatType_32BGRA),
+            String(kCVPixelBufferWidthKey) : Int(currentVideoDimensions!.width),
+            String(kCVPixelBufferHeightKey) : Int(currentVideoDimensions!.height),
+            String(kCVPixelFormatOpenGLESCompatibility) : Int(kCFBooleanTrue)
+        ]
+        
+        assetWriterPixelBufferInput = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: assetWriterVideoInput,
+                                                                           sourcePixelBufferAttributes: sourcePixelBufferAttributesDictionary)
+        
+        if assetWriter!.canAdd(assetWriterVideoInput) {
+            assetWriter!.add(assetWriterVideoInput)
+        } else {
+            print("不能添加视频writer的input \(assetWriterVideoInput)")
         }
-        //靠，主线
-        let context = CIContext.init()
-        let detecotr = CIDetector(ofType:CIDetectorTypeFace,  context:context, options:[CIDetectorAccuracy: CIDetectorAccuracyHigh])
-        
-        let inputImage = CIImage(image: resultImage)!
-        
-        let faceFeatures: [CIFaceFeature] = detecotr!.features(in: inputImage) as! [CIFaceFeature]
-        
- 
+    }
+    
+    func makeFaceWithCIImage(inputImage: CIImage, faceObject: AVMetadataFaceObject) -> CIImage {
+        let filter = CIFilter(name: "CIPixellate")!
+        filter.setValue(inputImage, forKey: kCIInputImageKey)
         // 1.
-        let inputImageSize = inputImage.extent.size
-        var transform = CGAffineTransform.identity
-        transform = transform.scaledBy(x: 1, y: -1)
-        transform = transform.translatedBy(x: 0, y: -inputImageSize.height)
+        filter.setValue(max(inputImage.extent.size.width, inputImage.extent.size.height) / 60, forKey: kCIInputScaleKey)
         
-        for faceFeature in faceFeatures {
+        let fullPixellatedImage = filter.outputImage
+        
+        var maskImage: CIImage!
+        let faceBounds = faceObject.bounds
+        
+        // 2.
+        let centerX = inputImage.extent.size.width * (faceBounds.origin.x + faceBounds.size.width / 2)
+        let centerY = inputImage.extent.size.height * (1 - faceBounds.origin.y - faceBounds.size.height / 2)
+        let radius = faceBounds.size.width * inputImage.extent.size.width / 2
+        let radialGradient = CIFilter(name: "CIRadialGradient",
+                                      withInputParameters: [
+                                        "inputRadius0" : radius,
+                                        "inputRadius1" : radius + 1,
+                                        "inputColor0" : CIColor(red: 0, green: 1, blue: 0, alpha: 1),
+                                        "inputColor1" : CIColor(red: 0, green: 0, blue: 0, alpha: 0),
+                                        kCIInputCenterKey : CIVector(x: centerX, y: centerY)
+            ])!
+        
+        let radialGradientOutputImage = radialGradient.outputImage!.cropping(to: inputImage.extent)
+        if maskImage == nil {
+            maskImage = radialGradientOutputImage
+        } else {
+            print(radialGradientOutputImage)
+            maskImage = CIFilter(name: "CISourceOverCompositing",
+                                 withInputParameters: [
+                                    kCIInputImageKey : radialGradientOutputImage,
+                                    kCIInputBackgroundImageKey : maskImage
+                ])!.outputImage
+        }
+        
+        let blendFilter = CIFilter(name: "CIBlendWithMask")!
+        blendFilter.setValue(fullPixellatedImage, forKey: kCIInputImageKey)
+        blendFilter.setValue(inputImage, forKey: kCIInputBackgroundImageKey)
+        blendFilter.setValue(maskImage, forKey: kCIInputMaskImageKey)
+        
+        return blendFilter.outputImage!
+    }
+
+    //先画layer，再合成
+    //MARK: -通过摄像头读取每一帧的图片，并且做识别做人脸识别
+    func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
+        
+        autoreleasepool {
+            let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer)!
+            self.currentVideoDimensions = CMVideoFormatDescriptionGetDimensions(formatDescription)
+            self.currentSampleTime = CMSampleBufferGetOutputPresentationTimeStamp(sampleBuffer)
+            
+            let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
+            var outputImage = CIImage(cvPixelBuffer: imageBuffer!)
+            
+            // 录制视频的处理
+            if self.isWriting {
+                if self.assetWriterPixelBufferInput?.assetWriterInput.isReadyForMoreMediaData == true {
+                    var newPixelBuffer: CVPixelBuffer? = nil
+                    
+                    CVPixelBufferPoolCreatePixelBuffer(nil, self.assetWriterPixelBufferInput!.pixelBufferPool!, &newPixelBuffer)
+                    
+                    self.context.render(outputImage, to: newPixelBuffer!, bounds: outputImage.extent, colorSpace: nil)
+                    
+                    let success = self.assetWriterPixelBufferInput?.append(newPixelBuffer!, withPresentationTime: self.currentSampleTime!)
+                    
+                    if success == false {
+                        print("Pixel Buffer没有附加成功")
+                    }
+                }
+            }
+            
+            let orientation = UIDevice.current.orientation
+            var t: CGAffineTransform!
+            if orientation == UIDeviceOrientation.portrait {
+                t = CGAffineTransform(rotationAngle: CGFloat(-M_PI / 2.0))
+            } else if orientation == UIDeviceOrientation.portraitUpsideDown {
+                t = CGAffineTransform(rotationAngle: CGFloat(M_PI / 2.0))
+            } else if (orientation == UIDeviceOrientation.landscapeRight) {
+                t = CGAffineTransform(rotationAngle: CGFloat(M_PI))
+            } else {
+                t = CGAffineTransform(rotationAngle: 0)
+            }
+            outputImage = outputImage.applying(t)
+            
+            let detecotr = CIDetector(ofType:CIDetectorTypeFace,  context:context, options:[CIDetectorAccuracy: CIDetectorAccuracyHigh])
+            let faceFeatures: [CIFaceFeature]? = detecotr!.features(in: outputImage) as? [CIFaceFeature]
+            
+            if faceFeatures?.count==0 {
+                return
+            }
+            
+            //只做单人的
+            let faceFeature: CIFaceFeature = faceFeatures!.first!
+            
+            // 1.
+            let inputImageSize = outputImage.extent.size
+            var transform = CGAffineTransform.identity
+            transform = transform.scaledBy(x: 1, y: -1)
+            
             //坐标反转？
             var faceViewBounds = faceFeature.bounds.applying(transform)
-            
             // 2.
             let scale = min(preview.bounds.size.width / inputImageSize.width,
                             preview.bounds.size.height / inputImageSize.height)
@@ -303,59 +501,67 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
             faceViewBounds.origin.x += offsetX
             faceViewBounds.origin.y += offsetY
             
-            let faceView = UIView(frame: faceViewBounds)
-            faceView.layer.borderColor = UIColor.orange.cgColor
-            faceView.layer.borderWidth = 1
-            
-            preview.addSubview(faceView)
+            if faceView != nil {
+                faceView?.frame = faceViewBounds
+            }else {
+                faceView = UIView(frame: faceViewBounds)
+                faceView?.layer.borderColor = UIColor.orange.cgColor
+                faceView?.layer.borderWidth = 1
+                
+                preview.addSubview(faceView!)
+            }
             
             if faceFeature.hasLeftEyePosition {
                 var leftEyePosition = faceFeature.leftEyePosition.applying(transform)
                 leftEyePosition = leftEyePosition.applying(CGAffineTransform(scaleX: scale, y: scale))
-                let LeftEyeBounds = CGRect.init(x: leftEyePosition.x-2, y: leftEyePosition.y-2, width: 4, height: 4)
+                let LeftEyeBounds = CGRect.init(x: leftEyePosition.x-faceViewBounds.size.width/4/2, y: leftEyePosition.y-faceViewBounds.size.width/4/2, width: faceViewBounds.size.width/4, height: faceViewBounds.size.width/4)
                 
-                let LeftEyeView = UIView(frame: LeftEyeBounds)
-                LeftEyeView.layer.borderColor = UIColor.green.cgColor
-                LeftEyeView.layer.borderWidth = 1
-                preview.addSubview(LeftEyeView)
+                if LeftEyeView != nil {
+                    LeftEyeView?.frame = LeftEyeBounds
+                }else {
+                    LeftEyeView = UIView(frame: LeftEyeBounds)
+                    LeftEyeView?.layer.borderColor = UIColor.green.cgColor
+                    LeftEyeView?.layer.borderWidth = 1
+                    preview.addSubview(LeftEyeView!)
+                }
             }
             
             if faceFeature.hasRightEyePosition {
                 var RightEyePosition = faceFeature.rightEyePosition.applying(transform)
                 RightEyePosition = RightEyePosition.applying(CGAffineTransform(scaleX: scale, y: scale))
-                let RightEyeBounds = CGRect.init(x: RightEyePosition.x-2, y: RightEyePosition.y-2, width: 4, height: 4)
+                let RightEyeBounds = CGRect.init(x: RightEyePosition.x-faceViewBounds.size.width/4/2, y: RightEyePosition.y-faceViewBounds.size.width/4/2, width: faceViewBounds.size.width/4, height: faceViewBounds.size.width/4)
                 
-                let RightEyeView = UIView(frame: RightEyeBounds)
-                RightEyeView.layer.borderColor = UIColor.green.cgColor
-                RightEyeView.layer.borderWidth = 1
-                preview.addSubview(RightEyeView)
+                if RightEyeView != nil {
+                    RightEyeView?.frame = RightEyeBounds
+                }else {
+                    RightEyeView = UIView(frame: RightEyeBounds)
+                    RightEyeView?.layer.borderColor = UIColor.green.cgColor
+                    RightEyeView?.layer.borderWidth = 1
+                    preview.addSubview(RightEyeView!)
+                }
             }
             
             if faceFeature.hasMouthPosition {
-                var RightEyePosition = faceFeature.mouthPosition.applying(transform)
-                RightEyePosition = RightEyePosition.applying(CGAffineTransform(scaleX: scale, y: scale))
-                let RightEyeBounds = CGRect.init(x: RightEyePosition.x-2, y: RightEyePosition.y-2, width: 4, height: 4)
                 
-                let RightEyeView = UIView(frame: RightEyeBounds)
-                RightEyeView.layer.borderColor = UIColor.green.cgColor
-                RightEyeView.layer.borderWidth = 1
-                preview.addSubview(RightEyeView)
             }
             if faceFeature.hasFaceAngle {
-                print(faceFeature.faceAngle)
+                
             }
+            //没法检测出闭眼，太弱了，侧脸也没法检测
             if faceFeature.hasSmile {
                 
             }
             if faceFeature.leftEyeClosed {
-                
+                LeftEyeView?.isHidden = true
             }
             if faceFeature.rightEyeClosed {
-                
+                RightEyeView?.isHidden = true
             }
+            
+
         }
     }
-    
+  
     func sampleBufferToImage(sampleBuffer: CMSampleBuffer!) -> UIImage {
         let imageBuffer: CVImageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
         CVPixelBufferLockBaseAddress(imageBuffer, CVPixelBufferLockFlags(rawValue: CVOptionFlags(0)))
@@ -402,7 +608,7 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
         //ADD
         for metadataFace in transformedFaces {
             let faceID =  (metadataFace as! AVMetadataFaceObject).faceID
-
+            
             for object in latestFaces {
                 let face: FaceObject = object as! FaceObject
                 if face.face?.faceID == faceID {
@@ -425,7 +631,7 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
         }
         //remove
         let removeFaces: NSMutableArray = NSMutableArray.init()
-
+        
         for object in latestFaces {
             let face: FaceObject = object as! FaceObject
             
@@ -448,7 +654,7 @@ class ViewController: UIViewController, AVCapturePhotoCaptureDelegate, AVCapture
         }
         
     }
-
+    
     override var prefersStatusBarHidden: Bool{
         return true
     }
